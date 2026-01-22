@@ -3,6 +3,7 @@ import pool from "@/lib/db";
 import { pusher } from "@/lib/pusher";
 import { sendLineMessage } from "@/lib/line";
 import { DateTime } from "luxon";
+import { parseDbDateTimeTH, TH_ZONE } from "@/utils/db-datetime";
 
 
 
@@ -38,16 +39,21 @@ export async function PATCH(
       return NextResponse.json({ message: "ไม่พบงาน" }, { status: 404 });
     }
 
-    const nowTH = DateTime.now().setZone("Asia/Bangkok");
+    const nowTH = DateTime.now().setZone(TH_ZONE);
 
-    const bookingDate = DateTime
-      .fromJSDate(timeCheck.rows[0].booking_date)
-      .setZone("Asia/Bangkok")
-      .startOf("day");
+    const bookingDateRaw = timeCheck.rows[0].booking_date;
+    const bookingDate = parseDbDateTimeTH(bookingDateRaw)?.startOf("day");
 
-    const startTime = DateTime
-      .fromJSDate(timeCheck.rows[0].start_time)
-      .setZone("Asia/Bangkok");
+    const startTimeRaw = timeCheck.rows[0].start_time;
+    const startTime = parseDbDateTimeTH(startTimeRaw);
+
+    if (!bookingDate || !startTime) {
+      await pool.query("ROLLBACK");
+      return NextResponse.json(
+        { message: "ข้อมูลวัน/เวลาไม่ถูกต้อง" },
+        { status: 400 },
+      );
+    }
 
     // รวมวันที่ + เวลา (กรณี DB แยก)
     const bookingStart = bookingDate.set({

@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import pool from "@/lib/db";
 import { sendLineMessage } from "@/lib/line";
 import { pusher } from "@/lib/pusher";
+import { DateTime } from "luxon";
+import { calculatePrice } from "@/services/calculatePrice";
+import { parseDbDateTimeTH, TH_ZONE } from "@/utils/db-datetime";
 
 const ALLOWED_STATUSES = new Set([
     "pending",
@@ -82,6 +85,8 @@ export async function PATCH(
                 b.status,
                 b.driver_id,
                 b.user_id,
+                b.start_time,
+                b.payment_status,
                 u.line_id AS user_line_id,
                 d.line_id AS driver_line_id
             FROM bookings b
@@ -101,6 +106,8 @@ export async function PATCH(
         const currentStatus = (bookingInfo.rows[0]?.status ?? "").trim();
         const driverId = bookingInfo.rows[0]?.driver_id as number | null;
         const userId = bookingInfo.rows[0]?.user_id as number | null;
+        const startTimeRaw = bookingInfo.rows[0]?.start_time as unknown;
+        const paymentStatus = (bookingInfo.rows[0]?.payment_status ?? "") as string;
         const userLineId = bookingInfo.rows[0]?.user_line_id as string | null;
         const driverLineId = bookingInfo.rows[0]?.driver_line_id as string | null;
 
@@ -137,6 +144,123 @@ export async function PATCH(
             return NextResponse.json(
                 { message: "ยังไม่มีคนขับ ไม่สามารถเปลี่ยนสถานะได้" },
                 { status: 400 }
+            );
+        }
+
+        // ✅ ถ้าจะตั้งเป็น pending_payment ให้คำนวณราคา/ชั่วโมงเหมือนคนขับกดปิดงาน
+        if (nextStatus === "pending_payment") {
+            if (currentStatus === "pending_payment" || paymentStatus === "waiting_verify") {
+                await pool.query("ROLLBACK");
+                return NextResponse.json(
+                    { message: "งานนี้ถูกปิดและรอชำระเงินแล้ว" },
+                    { status: 400 }
+                );
+            }
+
+            const startTime = parseDbDateTimeTH(startTimeRaw);
+            if (!startTime) {
+                await pool.query("ROLLBACK");
+                return NextResponse.json(
+                    { message: "ข้อมูลเวลาเริ่มงานไม่ถูกต้อง" },
+                    { status: 400 }
+                );
+            }
+
+            const now = DateTime.now().setZone(TH_ZONE);
+            const { diff_hours, total_price } = await calculatePrice({
+                start_time: startTime.toJSDate(),
+                end_time: now.toJSDate(),
+                rate_price: 50,
+            });
+
+            const updated = await pool.query(
+                `
+                UPDATE bookings
+                SET
+                    end_time = $1,
+                    total_hours = $2,
+                    total_price = $3,
+                    status = 'pending_payment'
+                WHERE booking_id = $4
+                RETURNING booking_id, status, end_time, total_hours, total_price
+                `,
+                [now.toJSDate(), diff_hours, total_price, id]
+            );
+
+            await pool.query(
+                `
+                INSERT INTO logs (
+                    booking_id, event_type, event_action, message, actor_id, actor_type
+                ) VALUES ($1, $2, $3, $4, $5, $6)
+                `,
+                [
+                    id,
+                    "PAYMENT",
+                    "WAITING_PAYMENT",
+                    "แอดมินกดเปลี่ยนสถานะเป็นรอการชำระเงิน",
+                    adminId,
+                    "admin",
+                ]
+            );
+
+            await pool.query("COMMIT");
+
+            // ✅ REALTIME: แจ้ง driver + user + admin (best-effort)
+            try {
+                const payload = {
+                    booking_id: id,
+                    status: "pending_payment",
+                    type: "ADMIN_STATUS_UPDATE",
+                };
+
+                await pusher.trigger(`private-driver-${driverId}`, "booking-updated", payload);
+
+                if (userId) {
+                    await pusher.trigger(`private-user-${userId}`, "booking-updated", {
+                        booking_id: id,
+                        status: "pending_payment",
+                        type: "STATUS_UPDATE",
+                    });
+                }
+
+                await pusher.trigger("private-admin", "booking-updated", {
+                    ...payload,
+                    user_id: userId ?? undefined,
+                });
+            } catch (e) {
+                console.error("PUSHER TRIGGER ERROR (ignored):", e);
+            }
+
+            // ✅ ส่ง LINE หา user เหมือน driver กดปิดงาน (best-effort)
+            try {
+                const userIdTrimmed = (userLineId ?? "").trim();
+                if (userIdTrimmed) {
+                    const lineMessage = `
+🚑 การเดินทางของคุณสำเร็จแล้ว
+
+⏱ ระยะเวลา: ${diff_hours.toFixed(2)} ชั่วโมง
+💰 ค่าบริการทั้งหมด: ${total_price.toLocaleString()} บาท
+
+กรุณาชำระเงินและแนบสลิปผ่านแอปพลิเคชันของเราเพื่อยืนยันการชำระเงิน
+ขอบคุณที่ใช้บริการ 🙏
+                    `.trim();
+
+                    try {
+                        await sendLineMessage(userIdTrimmed, lineMessage);
+                    } catch (lineError) {
+                        console.error("LINE PUSH FAILED (ignored):", lineError);
+                    }
+                }
+            } catch (lineError) {
+                console.error("LINE PUSH FAILED (ignored):", lineError);
+            }
+
+            return NextResponse.json(
+                {
+                    message: "อัปเดตสถานะสำเร็จ",
+                    booking: updated.rows[0],
+                },
+                { status: 200 }
             );
         }
 

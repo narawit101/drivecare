@@ -3,6 +3,7 @@ import pool from "@/lib/db";
 import { sendLineMessage } from "@/lib/line";
 import { pusher } from "@/lib/pusher";
 import { DateTime } from "luxon";
+import { parseDbDateTimeTH, TH_ZONE } from "@/utils/db-datetime";
 
 export async function PATCH(
   request: Request,
@@ -124,13 +125,20 @@ export async function PATCH(
     }
 
     const currentStatus = current.rows[0].status;
-    const startTime = current.rows[0].start_time as Date | null | undefined;
+    const startTime = current.rows[0].start_time as unknown;
 
     //  ก่อนเริ่มงาน 1 ชั่วโมง (แต่ยังไม่ถึงเวลาเริ่ม)
     // ให้กดได้แค่ going_pickup และ picked_up เท่านั้น
     if (startTime) {
-      const nowTH = DateTime.now().setZone("Asia/Bangkok");
-      const startTimeTH = DateTime.fromJSDate(startTime).setZone("Asia/Bangkok");
+      const nowTH = DateTime.now().setZone(TH_ZONE);
+      const startTimeTH = parseDbDateTimeTH(startTime);
+      if (!startTimeTH) {
+        await pool.query("ROLLBACK");
+        return NextResponse.json(
+          { message: "ข้อมูลวัน/เวลาไม่ถูกต้อง" },
+          { status: 400 },
+        );
+      }
       const startWindowTH = startTimeTH.minus({ hours: 1 });
 
       const isBeforeStart = nowTH < startTimeTH;

@@ -1,4 +1,5 @@
-import { en } from "zod/v4/locales";
+import { DateTime } from "luxon";
+import { parseDbDateTimeTH } from "@/utils/db-datetime";
 
 interface type {
   start_time: string | Date;
@@ -15,10 +16,22 @@ export async function calculatePrice({
     throw new Error("Missing paremeter");
   }
 
-  const start = new Date(start_time);
-  const end = new Date(end_time);
+  const toMillis = (value: string | Date): number => {
+    if (value instanceof Date) return value.getTime();
 
-  const driff = Math.ceil(end.getTime() - start.getTime());
+    const iso = DateTime.fromISO(value, { setZone: true });
+    if (iso.isValid) return iso.toMillis();
+
+    const th = parseDbDateTimeTH(value);
+    if (th) return th.toMillis();
+
+    throw new Error("Invalid datetime");
+  };
+
+  const startMs = toMillis(start_time);
+  const endMs = toMillis(end_time);
+
+  const driff = Math.ceil(endMs - startMs);
   // console.log(start.getTime())
 
   const driff_hours = driff / (1000 * 60 * 60);

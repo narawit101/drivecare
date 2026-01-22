@@ -264,10 +264,14 @@ export default function Home() {
     };
 
     const parseTimeToSeconds = (time: unknown) => {
-      const raw = String(time ?? "");
-      const parts = raw.split(":").map((p) => Number(p));
-      const [h, m, s] = [parts[0] ?? 0, parts[1] ?? 0, parts[2] ?? 0];
-      return h * 3600 + m * 60 + s;
+      const raw = String(time ?? "").trim();
+      // Supports both "HH:mm(:ss)" and "yyyy-MM-dd HH:mm:ss".
+      const m = raw.match(/(\d{2}):(\d{2})(?::(\d{2}))?/);
+      if (!m) return 0;
+      const hh = Number(m[1]);
+      const mm = Number(m[2]);
+      const ss = Number(m[3] ?? 0);
+      return hh * 3600 + mm * 60 + ss;
     };
 
     const list = [...openBookings];

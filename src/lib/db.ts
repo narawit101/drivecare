@@ -1,5 +1,10 @@
 // lib/db.ts
-import { Pool } from "pg";
+import { Pool, types } from "pg";
+
+// Avoid environment-dependent timezone conversion.
+// We keep DATE/TIMESTAMP values as strings and parse them explicitly.
+types.setTypeParser(types.builtins.DATE, (value) => value);
+types.setTypeParser(types.builtins.TIMESTAMP, (value) => value);
 
 function normalizeDatabaseUrl(url: string): string {
     let normalized = url.trim();

@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import pool from "@/lib/db";
 import { pusher } from "@/lib/pusher";
 import { sendLineMessage } from "@/lib/line";
+import { DateTime } from "luxon";
+import { parseDbDateTimeTH, TH_ZONE } from "@/utils/db-datetime";
 
 export async function POST(request: NextRequest) {
   try {
@@ -22,14 +24,47 @@ export async function POST(request: NextRequest) {
     } = body;
 
     await pool.query("BEGIN");
-    const onlyTime = start_time.includes("T")
-      ? start_time.split("T")[1]
-      : start_time;
+
+    const normalizeTime = (value: unknown): string | null => {
+      if (typeof value !== "string") return null;
+      const text = value.trim();
+      if (!text) return null;
+
+      // ISO datetime from client
+      if (text.includes("T")) {
+        const dt = parseDbDateTimeTH(text);
+        return dt ? dt.toFormat("HH:mm:ss") : null;
+      }
+
+      // HH:mm or HH:mm:ss
+      const m = text.match(/^(\d{2}):(\d{2})(?::(\d{2}))?$/);
+      if (!m) return null;
+      const hh = m[1];
+      const mm = m[2];
+      const ss = m[3] ?? "00";
+      return `${hh}:${mm}:${ss}`;
+    };
+
+    const onlyTime = normalizeTime(start_time);
+    if (!onlyTime) {
+      return NextResponse.json(
+        { message: "รูปแบบเวลาไม่ถูกต้อง" },
+        { status: 400 },
+      );
+    }
 
     const fullTimestamp = `${booking_date} ${onlyTime}`;
-    const now = new Date();
-    const bookingDateTime = new Date(fullTimestamp);
-    if (bookingDateTime < now) {
+    const nowTH = DateTime.now().setZone(TH_ZONE);
+    const bookingDateTimeTH = DateTime.fromSQL(fullTimestamp, { zone: TH_ZONE });
+
+    if (!bookingDateTimeTH.isValid) {
+      return NextResponse.json(
+        { message: "รูปแบบวันที่/เวลาไม่ถูกต้อง" },
+        { status: 400 },
+      );
+    }
+
+    if (bookingDateTimeTH < nowTH) {
       return NextResponse.json(
         {
           message: "ไม่สามารถที่จะจองย้อนหลังได้ กรุณาตรวจสอบวันที่และเวลาใหม่",

@@ -1,6 +1,7 @@
 import { DateTime } from "luxon";
 import { NextResponse } from "next/server";
 import pool from "@/lib/db";
+import { parseDbDateTimeTH, TH_ZONE } from "@/utils/db-datetime";
 
 export async function GET(req: Request) {
   const driver_id = req.headers.get("x-driver-id");
@@ -81,20 +82,23 @@ export async function GET(req: Request) {
 
     // ===== logic คุมการกด ด้วย Luxon =====
     // ===== Luxon Time Guard (TH) =====
-    const nowTH = DateTime.now().setZone("Asia/Bangkok");
+    const nowTH = DateTime.now().setZone(TH_ZONE);
 
     // วันที่ของงาน (ตัดเวลาออก)
-    const bookingDateTH = DateTime.fromJSDate(job.booking_date)
-      .setZone("Asia/Bangkok")
-      .startOf("day");
+    const bookingDateTH = parseDbDateTimeTH(job.booking_date)?.startOf("day");
 
     // เวลาเริ่มงานจริง (มีเวลา)
     // 1. เวลาปัจจุบัน
 
     // 2. เวลาเริ่มงาน (ดึงมาทั้งวันที่และเวลา)
-    const startTimeTH = DateTime.fromJSDate(job.start_time).setZone(
-      "Asia/Bangkok",
-    );
+    const startTimeTH = parseDbDateTimeTH(job.start_time);
+
+    if (!bookingDateTH || !startTimeTH) {
+      return NextResponse.json(
+        { message: "ข้อมูลวัน/เวลาไม่ถูกต้อง" },
+        { status: 400 },
+      );
+    }
 
     // 3. เงื่อนไขเพิ่มเติม: "สถานะงานต้องไม่ใช่สถานะที่จบไปแล้ว"
     // เช่น ถ้า status เป็น 'success' หรือ 'cancelled' ไม่ควรให้กด process ซ้ำ

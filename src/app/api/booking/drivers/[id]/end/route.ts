@@ -4,6 +4,7 @@ import { calculatePrice } from "@/services/calculatePrice";
 import { sendLineMessage } from "@/lib/line";
 import { DateTime } from "luxon";
 import { pusher } from "@/lib/pusher";
+import { parseDbDateTimeTH, TH_ZONE } from "@/utils/db-datetime";
 
 export async function PATCH(
   request: Request,
@@ -50,9 +51,15 @@ export async function PATCH(
       );
     }
 
-    const startTime = DateTime.fromJSDate(start_time).setZone("Asia/Bangkok");
+    const startTime = parseDbDateTimeTH(start_time);
+    if (!startTime) {
+      return NextResponse.json(
+        { message: "ข้อมูลเวลาเริ่มงานไม่ถูกต้อง" },
+        { status: 400 },
+      );
+    }
 
-    const now = DateTime.now().setZone("Asia/Bangkok");
+    const now = DateTime.now().setZone(TH_ZONE);
 
     const payload = {
       start_time: startTime.toJSDate(),

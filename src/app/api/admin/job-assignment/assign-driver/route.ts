@@ -3,6 +3,7 @@ import pool from "@/lib/db";
 import { pusher } from "@/lib/pusher";
 import { sendLineMessage } from "@/lib/line";
 import { DateTime } from "luxon";
+import { parseDbDateTimeTH } from "@/utils/db-datetime";
 
 export async function PATCH(request: NextRequest) {
     const adminId = request.headers.get("x-admin-id");
@@ -171,20 +172,11 @@ export async function PATCH(request: NextRequest) {
                 | undefined;
 
             if (row) {
-                const toDate = (value?: Date | string | null) => {
-                    if (!value) return null;
-                    return value instanceof Date ? value : new Date(value);
-                };
+                const bookingDate = parseDbDateTimeTH(row.booking_date);
+                const startTime = parseDbDateTimeTH(row.start_time);
 
-                const bookingDate = toDate(row.booking_date);
-                const startTime = toDate(row.start_time);
-
-                const dateLabel = bookingDate
-                    ? DateTime.fromJSDate(bookingDate).setZone("Asia/Bangkok").toFormat("dd/LL/yyyy")
-                    : "-";
-                const timeLabel = startTime
-                    ? DateTime.fromJSDate(startTime).setZone("Asia/Bangkok").toFormat("HH:mm")
-                    : "-";
+                const dateLabel = bookingDate ? bookingDate.toFormat("dd/LL/yyyy") : "-";
+                const timeLabel = startTime ? startTime.toFormat("HH:mm") : "-";
 
                 const pickup = row.pickup_address ?? "-";
                 const dropoff = row.dropoff_address ?? "-";
