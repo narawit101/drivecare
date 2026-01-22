@@ -51,7 +51,8 @@ export async function POST(request: NextRequest) {
     return response;
 
   } catch (error) {
-    console.log(error);
+    const err = error as { code?: string; message?: string };
+    console.error("Admin login error:", { code: err?.code, message: err?.message });
     return NextResponse.json({ message: "ไม่สามารถเข้าสู่ระบบได้" });
   }
 }
