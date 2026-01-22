@@ -1,9 +1,10 @@
 import { NextResponse, NextRequest } from "next/server";
 import pool from "@/lib/db";
-import { writeFile, mkdir } from "fs/promises";
-import path from "path";
+import { uploadImageFile } from "@/lib/cloudinary";
 const jwt = require("jsonwebtoken");
 import { sendLineMessage } from "@/lib/line";
+
+export const runtime = "nodejs";
 
 export async function POST(req: NextRequest) {
   try {
@@ -15,23 +16,16 @@ export async function POST(req: NextRequest) {
     const first_name = formData.get("first_name") as string;
     // ... ดึงฟิลด์อื่นๆ เช่น last_name, phone_number, city
 
-    // ฟังก์ชันช่วยบันทึกไฟล์ลงเครื่อง (เลียนแบบการทำงานของ Multer)
+    // ฟังก์ชันช่วยอัปโหลดไฟล์ไป Cloudinary
     const saveFile = async (file: FormDataEntryValue | null, folder: string) => {
       if (!file || !(file instanceof File)) return null;
 
-      const bytes = await file.arrayBuffer();
-      const buffer = Buffer.from(bytes);
+      const uploaded = await uploadImageFile(file, {
+        folder: `drivecare/driver/${folder}`,
+        publicIdPrefix: `driver-${folder}`,
+      });
 
-      const fileName = `${Date.now()}-${file.name}`;
-      const relativePath = `/uploads/driver/${folder}/${fileName}`;
-      const fullPath = path.join(process.cwd(), "public", relativePath);
-
-      // สร้างโฟลเดอร์ถ้ายังไม่มี
-      await mkdir(path.dirname(fullPath), { recursive: true });
-      // เขียนไฟล์ลงดิสก์
-      await writeFile(fullPath, buffer);
-
-      return relativePath; // ส่งค่า path กลับไปเก็บใน Database
+      return uploaded.secure_url; // เก็บ URL ลง Database
     };
 
     // ประมวลผลรูปภาพทั้งหมด

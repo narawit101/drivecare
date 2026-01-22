@@ -2,7 +2,8 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   /* config options here */
-  reactCompiler: true, images: {
+  reactCompiler: true,
+  images: {
     remotePatterns: [
       {
       protocol: 'https',
@@ -11,6 +12,10 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "profile.line-scdn.net",
+      },
+      {
+        protocol: "https",
+        hostname: "res.cloudinary.com",
       },
     ],
   },

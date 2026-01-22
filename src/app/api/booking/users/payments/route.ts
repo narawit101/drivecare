@@ -1,8 +1,7 @@
 import pool from "@/lib/db";
 import { NextRequest, NextResponse } from "next/server";
 import { pusher } from "@/lib/pusher";
-import { mkdir, unlink, writeFile } from "fs/promises";
-import path from "path";
+import { deleteCloudinaryByUrl, uploadImageFile } from "@/lib/cloudinary";
 
 export const runtime = "nodejs";
 
@@ -35,31 +34,21 @@ function getFormString(formData: FormData, keys: string[]): string | null {
 }
 
 async function saveSlipFile(file: File, userId: string, bookingId: string) {
-  const bytes = await file.arrayBuffer();
-  const buffer = Buffer.from(bytes);
-
-  const ext = path.extname(file.name || "").toLowerCase() || ".jpg";
-  const fileName = `${userId}-${bookingId}-${Date.now()}${ext}`;
-  const relativePath = `/uploads/user/payments/${fileName}`;
-  const fullPath = path.join(process.cwd(), "public", relativePath);
-
-  await mkdir(path.dirname(fullPath), { recursive: true });
-  await writeFile(fullPath, buffer);
-
-  return relativePath;
+  const uploaded = await uploadImageFile(file, {
+    folder: "drivecare/user/payments",
+    publicIdPrefix: `${userId}-${bookingId}-slip`,
+  });
+  return uploaded.secure_url;
 }
 
-async function safeDeletePublicFile(relativePath: string) {
-  if (!relativePath.startsWith("/uploads/user/payments/")) return;
-
-  const fullPath = path.resolve(process.cwd(), "public", relativePath);
-  const paymentsDir = path.resolve(process.cwd(), "public", "uploads", "user", "payments");
-  if (!fullPath.startsWith(paymentsDir)) return;
+async function safeDeleteSlip(slipUrl: string) {
+  // legacy local path → ignore (Vercel can't delete anyway)
+  if (slipUrl.startsWith("/uploads/")) return;
 
   try {
-    await unlink(fullPath);
+    await deleteCloudinaryByUrl(slipUrl);
   } catch {
-    // ignore missing file / delete issues
+    // ignore delete issues
   }
 }
 
@@ -152,13 +141,13 @@ export async function PATCH(request: NextRequest) {
 
     if (String(bookingUserId) !== String(user_id)) {
       await client.query("ROLLBACK");
-      if (newSlipPath) await safeDeletePublicFile(newSlipPath);
+      if (newSlipPath) await safeDeleteSlip(newSlipPath);
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
     if (!driverId) {
       await client.query("ROLLBACK");
-      if (newSlipPath) await safeDeletePublicFile(newSlipPath);
+      if (newSlipPath) await safeDeleteSlip(newSlipPath);
       return NextResponse.json(
         { message: "ยังไม่มีคนขับรับงาน" },
         { status: 400 }
@@ -171,7 +160,7 @@ export async function PATCH(request: NextRequest) {
 
     if (!canPay) {
       await client.query("ROLLBACK");
-      if (newSlipPath) await safeDeletePublicFile(newSlipPath);
+      if (newSlipPath) await safeDeleteSlip(newSlipPath);
       return NextResponse.json(
         { message: "ไม่สามารถจ่ายเงินได้ตอนนี้" },
         { status: 400 }
@@ -199,7 +188,7 @@ export async function PATCH(request: NextRequest) {
 
     if (result.rowCount === 0) {
       await client.query("ROLLBACK");
-      if (newSlipPath) await safeDeletePublicFile(newSlipPath);
+      if (newSlipPath) await safeDeleteSlip(newSlipPath);
       return NextResponse.json(
         { message: "รายการนี้ถูกชำระไปแล้ว" },
         { status: 400 }
@@ -216,7 +205,7 @@ export async function PATCH(request: NextRequest) {
     await client.query("COMMIT");
 
     if (oldSlipToDelete && oldSlipToDelete !== slip_url) {
-      await safeDeletePublicFile(oldSlipToDelete);
+      await safeDeleteSlip(oldSlipToDelete);
     }
 
     /* ---------------- 🔔 REALTIME (หลัง commit เท่านั้น) ---------------- */
@@ -252,8 +241,8 @@ export async function PATCH(request: NextRequest) {
     } catch {
       // ignore
     }
-    if (newSlipPath) await safeDeletePublicFile(newSlipPath);
-    console.error(err);
+    if (newSlipPath) await safeDeleteSlip(newSlipPath);
+    console.error("Payment upload error:", { code: (err as any)?.code, message: (err as any)?.message });
     return NextResponse.json(
       { message: "เกิดข้อผิดพลาดในการชำระเงิน" },
       { status: 500 }
