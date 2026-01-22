@@ -97,8 +97,7 @@ export async function POST(request: NextRequest) {
     );
 
   } catch (error) {
-    const err = error as { code?: string; message?: string };
-    console.error("Login error:", { code: err?.code, message: err?.message });
+    console.error("Login error:", error);
     return NextResponse.json(
       { message: "login ล้มเหลว" },
       { status: 500 }
