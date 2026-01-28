@@ -1,0 +1,1 @@
+export type { Locations } from "@/types/map/geo";

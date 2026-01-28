@@ -1,0 +1,184 @@
+@import "tailwindcss";
+@import "react-toastify/dist/ReactToastify.css";
+/* @plugin "daisyui"; */
+
+* {
+  font-family: var(--font-prompt);
+}
+
+@theme {
+  --color-button-primary: #70c5be;
+  /* Primary - #4CAF50 (Green) */
+  --color-primary-50: oklch(0.96 0.03 145);
+  --color-primary-100: oklch(0.92 0.06 145);
+  --color-primary-200: oklch(0.84 0.1 145);
+  --color-primary-300: oklch(0.76 0.14 145);
+  --color-primary-400: oklch(0.7 0.16 145);
+  --color-primary-500: oklch(0.64 0.17 145); /* #4CAF50 */
+  --color-primary-600: oklch(0.54 0.15 145);
+  --color-primary-700: oklch(0.46 0.13 145);
+  --color-primary-800: oklch(0.38 0.1 145);
+  --color-primary-900: oklch(0.3 0.08 145);
+  --color-primary-950: oklch(0.22 0.05 145);
+
+  /* Secondary - #e1eadb (Light Green) */
+  --color-secondary-50: oklch(0.98 0.01 130);
+  --color-secondary-100: oklch(0.96 0.02 130);
+  --color-secondary-200: oklch(0.92 0.03 130); /* #e1eadb */
+  --color-secondary-300: oklch(0.86 0.05 130);
+  --color-secondary-400: oklch(0.78 0.07 130);
+  --color-secondary-500: oklch(0.68 0.09 130);
+  --color-secondary-600: oklch(0.58 0.08 130);
+  --color-secondary-700: oklch(0.48 0.07 130);
+  --color-secondary-800: oklch(0.38 0.05 130);
+  --color-secondary-900: oklch(0.28 0.04 130);
+  --color-secondary-950: oklch(0.2 0.03 130);
+
+  /* Info - #3b82f6 (Blue) */
+  --color-info-50: oklch(0.97 0.02 260);
+  --color-info-100: oklch(0.93 0.05 260);
+  --color-info-200: oklch(0.86 0.1 260);
+  --color-info-300: oklch(0.76 0.14 260);
+  --color-info-400: oklch(0.68 0.17 260);
+  --color-info-500: oklch(0.62 0.19 260); /* #3b82f6 */
+  --color-info-600: oklch(0.54 0.18 260);
+  --color-info-700: oklch(0.46 0.16 260);
+  --color-info-800: oklch(0.38 0.12 260);
+  --color-info-900: oklch(0.3 0.08 260);
+  --color-info-950: oklch(0.22 0.05 260);
+
+  /* Success - #4ade80 (Green) */
+  --color-success-50: oklch(0.97 0.03 145);
+  --color-success-100: oklch(0.93 0.07 145);
+  --color-success-200: oklch(0.87 0.12 145);
+  --color-success-300: oklch(0.82 0.16 145);
+  --color-success-400: oklch(0.79 0.19 145); /* #4ade80 */
+  --color-success-500: oklch(0.72 0.18 145);
+  --color-success-600: oklch(0.62 0.16 145);
+  --color-success-700: oklch(0.52 0.14 145);
+  --color-success-800: oklch(0.42 0.11 145);
+  --color-success-900: oklch(0.32 0.08 145);
+  --color-success-950: oklch(0.22 0.05 145);
+
+  /* Warning - #f59e0b (Amber) */
+  --color-warning-50: oklch(0.98 0.03 85);
+  --color-warning-100: oklch(0.94 0.08 85);
+  --color-warning-200: oklch(0.88 0.12 85);
+  --color-warning-300: oklch(0.82 0.16 85);
+  --color-warning-400: oklch(0.78 0.18 80);
+  --color-warning-500: oklch(0.75 0.18 70); /* #f59e0b */
+  --color-warning-600: oklch(0.65 0.17 65);
+  --color-warning-700: oklch(0.55 0.15 60);
+  --color-warning-800: oklch(0.45 0.12 55);
+  --color-warning-900: oklch(0.35 0.08 50);
+  --color-warning-950: oklch(0.25 0.05 50);
+
+  /* Error/Danger - #ef4444 (Red) */
+  --color-error-50: oklch(0.97 0.02 25);
+  --color-error-100: oklch(0.93 0.06 25);
+  --color-error-200: oklch(0.86 0.12 25);
+  --color-error-300: oklch(0.76 0.17 27);
+  --color-error-400: oklch(0.68 0.2 27);
+  --color-error-500: oklch(0.63 0.22 27); /* #ef4444 */
+  --color-error-600: oklch(0.54 0.2 27);
+  --color-error-700: oklch(0.45 0.18 27);
+  --color-error-800: oklch(0.38 0.14 27);
+  --color-error-900: oklch(0.3 0.1 27);
+  --color-error-950: oklch(0.22 0.06 27);
+
+  /* Neutral */
+  --color-neutral-50: oklch(0.98 0 0);
+  --color-neutral-100: oklch(0.94 0 0); /* #eeeeee divider */
+  --color-neutral-200: oklch(0.9 0 0);
+  --color-neutral-300: oklch(0.82 0 0);
+  --color-neutral-400: oklch(0.7 0.005 240); /* #687076 icon */
+  --color-neutral-500: oklch(0.62 0.005 240); /* #9BA1A6 dark icon */
+  --color-neutral-600: oklch(0.5 0.005 240);
+  --color-neutral-700: oklch(0.4 0.008 240);
+  --color-neutral-800: oklch(0.27 0.01 240);
+  --color-neutral-900: oklch(0.18 0.01 240); /* #11181C text */
+  --color-neutral-950: oklch(0.17 0.005 240); /* #151718 dark bg */
+
+  /* Surface */
+  --color-surface: oklch(1 0 0); /* #fff */
+  --color-surface-dim: oklch(0.98 0 0);
+  --color-surface-dark: oklch(0.17 0.005 240); /* #151718 */
+
+  /* ===== FONTS ===== */
+  --font-sans: var(--font-prompt), "Prompt", ui-sans-serif, system-ui,
+    sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  /* ===== BORDER RADIUS ===== */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-2xl: 1.5rem;
+  --radius-full: 9999px;
+
+  /* ===== SHADOWS ===== */
+  --shadow-sm: 0 1px 2px 0 oklch(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px oklch(0 0 0 / 0.1),
+    0 2px 4px -2px oklch(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px oklch(0 0 0 / 0.1),
+    0 4px 6px -4px oklch(0 0 0 / 0.1);
+  --shadow-xl: 0 20px 25px -5px oklch(0 0 0 / 0.1),
+    0 8px 10px -6px oklch(0 0 0 / 0.1);
+
+  /* ===== ANIMATIONS ===== */
+  --animate-fade-in: fade-in 0.3s ease-out;
+  --animate-slide-up: slide-up 0.3s ease-out;
+  --animate-scale-in: scale-in 0.2s ease-out;
+}
+
+/* Keyframes */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Toast Notification Font */
+.Toastify__toast,
+.Toastify__toast-body,
+.Toastify__toast-container {
+  font-family: var(--font-prompt), "Prompt", ui-sans-serif, system-ui,
+    sans-serif !important;
+}
+
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
