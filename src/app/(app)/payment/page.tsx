@@ -357,7 +357,7 @@ function PaymentCard({ booking, isPaid, onPay, onViewDetail }: { booking: Bookin
 
                     <button
                         onClick={() => onViewDetail(booking.booking_id)}
-                        className="w-full py-3 rounded-2xl bg-slate-50 text-[#3a8b85] font-bold text-xs hover:bg-[#70C5BE] hover:text-white transition-all shadow-lg shadow-[#70C5BE]/20 flex items-center justify-center gap-2"
+                        className="w-full py-3 rounded-2xl bg-slate-50 text-[#3a8b85] font-bold text-xs hover:bg-[#70C5BE] hover:text-white transition-all shadow-lg shadow-[#70C5BE]/20 flex items-center justify-center gap-2  border border-[#70C5BE]"
                     >
                         <Icon icon="solar:document-list-bold" className="text-lg" />
                         ดูรายละเอียด

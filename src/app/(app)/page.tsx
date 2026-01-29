@@ -317,7 +317,7 @@ export default function Home() {
           ].map((menu) => (
             <button key={menu.label} onClick={() => router.push(menu.path)} className="flex flex-col items-center gap-2">
               <div className="w-16 h-16 rounded-2xl bg-white shadow-sm border border-gray-50 flex items-center justify-center active:scale-90 transition-all">
-                <Icon icon={menu.icon} className="w-8 h-8 text-[#70C5BE]" />
+                <Icon icon={menu.icon} className="w-8 h-8 text-[#70C5BE] cursor-pointer" />
               </div>
               <span className="text-xs font-semibold text-gray-600">{menu.label}</span>
             </button>
