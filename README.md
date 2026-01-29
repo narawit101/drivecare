@@ -361,7 +361,7 @@ drivecare
 │  │  │  ├─ PlaceSearch.tsx
 │  │  │  ├─ useLongdoMap.ts
 │  │  │  └─ useLongdoMapDriver.ts
-│  │  └─ ้hospital
+│  │  └─hospital
 │  │     └─ get-near-find.ts
 │  ├─ store
 │  │  └─ notification.state.ts

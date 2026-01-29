@@ -104,11 +104,9 @@ export default function ModalAssignmentAccept({
                 let allDrivers = data.users || [];
 
                 // Filter out the driver who reported if it's a driver report
-                if (reportData?.actor_type === "driver" && reportData.reporter_name) {
-                    const reporterName = reportData.reporter_name.toLowerCase();
+                if (reportData?.actor_type === "driver" && reportData.actor_id) {
                     allDrivers = allDrivers.filter((driver: ActiveDriverRow) => {
-                        const driverFullName = `${driver.first_name} ${driver.last_name}`.toLowerCase().trim();
-                        return driverFullName !== reporterName;
+                        return driver.driver_id !== reportData.actor_id;
                     });
                 }
 

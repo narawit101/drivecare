@@ -22,6 +22,7 @@ export function flattenReports(data: BookingReport[]): ReportRow[] {
 
             report_id: r.report_id,
             actor_type: r.actor_type,
+            actor_id: r.actor_id,
             report_type: r.report_type,
             message: r.message,
             is_replied: r.is_replied,

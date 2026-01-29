@@ -59,6 +59,7 @@ export type ReportRow = {
 
     report_id: number;
     actor_type: ActorType;
+    actor_id?: number;
     report_type: string;
     message: string;
     is_replied: boolean;
