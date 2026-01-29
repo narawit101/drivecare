@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { DateTime } from "luxon";
 import pool from "@/lib/db";
 import { sendLineMessage } from "@/lib/line"; // ตรวจสอบว่า path ถูกต้อง
 import { pusher } from "@/lib/pusher";
@@ -41,11 +42,18 @@ export async function PATCH(
 
         const checkTimeLimit = () => {
             if (!bookingStartTime) return false;
-            console.log("starttime", bookingStartTime);
-            console.log("now", now);
-            const timeDiff = bookingStartTime.getTime() - now.getTime();
-            const hoursDiff = timeDiff / (1000 * 60 * 60);
-            return hoursDiff < 6; // ตรวจสอบถ้าเหลือเวลาไม่เกิน 6 ชั่วโมง       }
+            
+            // Use luxon for proper timezone handling
+            const nowInThailand = DateTime.now().setZone('Asia/Bangkok');
+            const bookingTimeInThailand = DateTime.fromJSDate(bookingStartTime).setZone('Asia/Bangkok');
+            
+            console.log("starttime (Thailand)", bookingTimeInThailand.toISO());
+            console.log("now (Thailand)", nowInThailand.toISO());
+            
+            const hoursDiff = bookingTimeInThailand.diff(nowInThailand, 'hours').hours;
+            console.log("hoursDiff", hoursDiff);
+            
+            return hoursDiff < 6; // ตรวจสอบถ้าเหลือเวลาไม่เกิน 6 ชั่วโมง
         }
         if (checkTimeLimit()) {
             return NextResponse.json(
