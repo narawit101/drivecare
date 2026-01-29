@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { DateTime } from "luxon";
 import pool from "@/lib/db";
 import { sendLineMessage } from "@/lib/line"; // ตรวจสอบว่า path ถูกต้อง
 import { pusher } from "@/lib/pusher";
@@ -19,7 +18,11 @@ export async function PATCH(
 
         // 1. ดึงข้อมูลงานและข้อมูล LINE ID ของลูกค้า
         const bookingRes = await pool.query(
-            `SELECT b.status, u.line_id, b.booking_id,b.start_time
+            `SELECT 
+               b.status, 
+               u.line_id, 
+               b.booking_id,
+               b.start_time AT TIME ZONE 'Asia/Bangkok' AS start_time
              FROM bookings b
              JOIN users u ON b.user_id = u.user_id
              WHERE b.booking_id = $1 AND b.driver_id = $2`,
@@ -42,20 +45,11 @@ export async function PATCH(
 
         const checkTimeLimit = () => {
             if (!bookingStartTime) return false;
-            
-            // Use luxon for proper timezone handling
-            const nowInThailand = DateTime.now().setZone('Asia/Bangkok');
-            
-            // Database stores UTC time, so we need to treat it as UTC first, then convert to Thailand
-            const bookingTimeInThailand = DateTime.fromJSDate(bookingStartTime, { zone: 'utc' }).setZone('Asia/Bangkok');
-            
-            console.log("starttime (Thailand)", bookingTimeInThailand.toISO());
-            console.log("now (Thailand)", nowInThailand.toISO());
-            
-            const hoursDiff = bookingTimeInThailand.diff(nowInThailand, 'hours').hours;
-            console.log("hoursDiff", hoursDiff);
-            
-            return hoursDiff < 6; // ตรวจสอบถ้าเหลือเวลาไม่เกิน 6 ชั่วโมง
+            console.log("starttime", bookingStartTime);
+            console.log("now", now);
+            const timeDiff = bookingStartTime.getTime() - now.getTime();
+            const hoursDiff = timeDiff / (1000 * 60 * 60);
+            return hoursDiff < 6; // ตรวจสอบถ้าเหลือเวลาไม่เกิน 6 ชั่วโมง       }
         }
         if (checkTimeLimit()) {
             return NextResponse.json(
