@@ -45,7 +45,6 @@ export default function HealthDashboard() {
         }
     }, [token]);
 
-    // แก้ไข: รวม Logic ตรวจสอบสิทธิ์และการโหลดข้อมูล
     useEffect(() => {
         if (!isLoad) return;
         if (!token) {
@@ -56,7 +55,7 @@ export default function HealthDashboard() {
             router.replace("/");
             return;
         }
-        fetchHealthData(); // 🔥 เพิ่มการเรียกฟังก์ชันตรงนี้
+        fetchHealthData(); 
     }, [isLoad, token, userData, router, fetchHealthData]);
 
     const openEditModal = () => {
@@ -151,7 +150,7 @@ export default function HealthDashboard() {
             </header>
 
             <main className="max-w-5xl mx-auto px-6 py-6 space-y-6">
-                <div className="bg-[#f8fcfc] min-h-screen pb-24 font-sans">
+                <div className="min-h-screen pb-24 font-sans">
                     <header className="px-2 ppb-4 flex justify-between items-center">
                         <div>
                             <div className="text-sm text-gray-500 flex items-center gap-1 mt-1">
