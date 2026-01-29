@@ -18,7 +18,7 @@ export async function PATCH(
 
         // 1. ดึงข้อมูลงานและข้อมูล LINE ID ของลูกค้า
         const bookingRes = await pool.query(
-            `SELECT b.status, u.line_id, b.booking_id
+            `SELECT b.status, u.line_id, b.booking_id,b.start_time
              FROM bookings b
              JOIN users u ON b.user_id = u.user_id
              WHERE b.booking_id = $1 AND b.driver_id = $2`,
@@ -34,60 +34,80 @@ export async function PATCH(
 
         const { status: currentStatus, line_id } = bookingRes.rows[0];
 
-        if (currentStatus === "cancelled") {
+        const now = new Date();
+        const bookingStartTime = bookingRes.rows[0].start_time
+            ? new Date(bookingRes.rows[0].start_time)
+            : null;
+
+        const checkTimeLimit = () => {
+            if (!bookingStartTime) return false;
+            console.log("starttime", bookingStartTime);
+            console.log("now", now);
+            const timeDiff = bookingStartTime.getTime() - now.getTime();
+            const hoursDiff = timeDiff / (1000 * 60 * 60);
+            return hoursDiff < 6; // ตรวจสอบถ้าเหลือเวลาไม่เกิน 6 ชั่วโมง       }
+        }
+        if (checkTimeLimit()) {
             return NextResponse.json(
-                { message: "งานนี้ถูกยกเลิกไปแล้ว" },
+                { message: "ไม่สามารถยกเลิกงานได้เนื่องจากเหลือเวลาน้อยกว่า 6 ชั่วโมงก่อนถึงเวลานัด ถ้าต้องการยกเลิกงาน กรุณากดปุ่มรายงานปัญหา และเลือก 'ยกเลิกงาน'" },
                 { status: 400 }
             );
-        }
+        } else {
+            console.log("สามารถยกเลิกงานได้เนื่องจากเหลือเวลาเกิน 6 ชั่วโมงก่อนถึงเวลานัด");
+            if (currentStatus === "cancelled") {
+                return NextResponse.json(
+                    { message: "งานนี้ถูกยกเลิกไปแล้ว" },
+                    { status: 400 }
+                );
+            }
 
-        // ❌ ถ้างานเสร็จแล้ว
-        if (currentStatus === "success") {
-            return NextResponse.json(
-                { message: "ไม่สามารถยกเลิกงานที่เสร็จแล้วได้" },
-                { status: 400 }
-            );
-        }
+            // ❌ ถ้างานเสร็จแล้ว
+            if (currentStatus === "success") {
+                return NextResponse.json(
+                    { message: "ไม่สามารถยกเลิกงานที่เสร็จแล้วได้" },
+                    { status: 400 }
+                );
+            }
 
-        // ✅ สถานะที่อนุญาตให้ยกเลิก
-        const allowedStatuses = ["accepted", "going_pickup"];
+            // ✅ สถานะที่อนุญาตให้ยกเลิก
+            const allowedStatuses = ["accepted", "going_pickup"];
 
-        if (!allowedStatuses.includes(currentStatus)) {
-            return NextResponse.json(
-                { message: "ไม่สามารถยกเลิกงานในสถานะปัจจุบันได้" },
-                { status: 400 }
-            );
-        }
+            if (!allowedStatuses.includes(currentStatus)) {
+                return NextResponse.json(
+                    { message: "ไม่สามารถยกเลิกงานในสถานะปัจจุบันได้" },
+                    { status: 400 }
+                );
+            }
 
-        // 3. เริ่มขั้นตอน Database Update
-        const client = await pool.connect();
-        try {
-            await client.query("BEGIN");
+            // 3. เริ่มขั้นตอน Database Update
+            const client = await pool.connect();
+            try {
+                await client.query("BEGIN");
 
-            // คืนงานกลับเข้าระบบ
-            await client.query(
-                `UPDATE bookings
+                // คืนงานกลับเข้าระบบ
+                await client.query(
+                    `UPDATE bookings
                  SET driver_id = NULL, status = 'pending'
                  WHERE booking_id = $1`,
-                [booking_id]
-            );
+                    [booking_id]
+                );
 
-            // บันทึก Log
-            await client.query(
-                `INSERT INTO logs (booking_id, event_type, event_action, message, actor_id, actor_type)
+                // บันทึก Log
+                await client.query(
+                    `INSERT INTO logs (booking_id, event_type, event_action, message, actor_id, actor_type)
                  VALUES ($1, $2, $3, $4, $5, $6)`,
-                [booking_id, "BOOKING", "DRIVER_CANCELLED", `คนขับคืนงานเข้าระบบ (สถานะเดิม: ${currentStatus})`, driver_id, "driver"]
-            );
+                    [booking_id, "BOOKING", "DRIVER_CANCELLED", `คนขับคืนงานเข้าระบบ (สถานะเดิม: ${currentStatus})`, driver_id, "driver"]
+                );
 
-            await client.query("COMMIT");
+                await client.query("COMMIT");
 
-            // Realtime (best-effort): คืนงานเข้าระบบ -> ถือว่าเป็นงานใหม่สำหรับคนขับทุกคน
-            // และแจ้ง admin เพื่อให้ refresh หน้า job-assignment
-            try {
-                // IMPORTANT: ต้องส่ง payload เต็มให้ driver ทุกคน เพื่อให้หน้า dashboard อัปเดตโดยไม่ต้อง refetch
-                // ใช้ LEFT JOIN locations เผื่อข้อมูลเก่าบางรายการไม่มี locations แล้วจะไม่หลุด event
-                const bookingRowRes = await pool.query(
-                    `
+                // Realtime (best-effort): คืนงานเข้าระบบ -> ถือว่าเป็นงานใหม่สำหรับคนขับทุกคน
+                // และแจ้ง admin เพื่อให้ refresh หน้า job-assignment
+                try {
+                    // IMPORTANT: ต้องส่ง payload เต็มให้ driver ทุกคน เพื่อให้หน้า dashboard อัปเดตโดยไม่ต้อง refetch
+                    // ใช้ LEFT JOIN locations เผื่อข้อมูลเก่าบางรายการไม่มี locations แล้วจะไม่หลุด event
+                    const bookingRowRes = await pool.query(
+                        `
           SELECT 
             b.booking_id,
             b.booking_date,
@@ -115,53 +135,55 @@ export async function PATCH(
           WHERE b.booking_id = $1
           LIMIT 1
           `,
-                    [booking_id]
-                );
+                        [booking_id]
+                    );
 
-                const booking = bookingRowRes.rows[0];
+                    const booking = bookingRowRes.rows[0];
 
-                if (booking) {
-                    await pusher.trigger("private-driver", "booking.returned", { booking });
-                    await pusher.trigger("private-admin", "booking.returned", {
-                        booking_id: booking.booking_id,
-                        booking,
-                        type: "DRIVER_RETURN",
-                    });
-                } else {
-                    // Fallback: แจ้งอย่างน้อยให้ admin เห็นว่ามีการคืนงาน (อาจต้องตรวจสอบข้อมูลใน DB)
-                    await pusher.trigger("private-admin", "booking.returned", {
-                        booking_id: Number(booking_id),
-                        type: "DRIVER_RETURN",
-                    });
+                    if (booking) {
+                        await pusher.trigger("private-driver", "booking.returned", { booking });
+                        await pusher.trigger("private-admin", "booking.returned", {
+                            booking_id: booking.booking_id,
+                            booking,
+                            type: "DRIVER_RETURN",
+                        });
+                    } else {
+                        // Fallback: แจ้งอย่างน้อยให้ admin เห็นว่ามีการคืนงาน (อาจต้องตรวจสอบข้อมูลใน DB)
+                        await pusher.trigger("private-admin", "booking.returned", {
+                            booking_id: Number(booking_id),
+                            type: "DRIVER_RETURN",
+                        });
+                    }
+                } catch (pusherError) {
+                    console.error("PUSHER TRIGGER ERROR (ignored):", pusherError);
                 }
-            } catch (pusherError) {
-                console.error("PUSHER TRIGGER ERROR (ignored):", pusherError);
+
+                // 4. ส่ง LINE แจ้งเตือนลูกค้า (ทำหลังจากที่ DB มั่นใจว่า Update สำเร็จ)
+                if (line_id) {
+                    const lineMessage =
+                        `⚠️ แจ้งเตือนการเดินทาง (เลขที่การจอง: ${booking_id})\n\n` +
+                        `ขออภัยในความไม่สะดวก เนื่องจากคนขับมีความจำเป็นต้องยกเลิกงานในครั้งนี้\n\n` +
+                        `ขณะนี้ระบบกำลังนำงานของคุณกลับเข้าสู่ระบบเพื่อจัดหาคนขับท่านใหม่ให้โดยด่วนที่สุด\n` +
+                        `คุณสามารถตรวจสอบสถานะได้ผ่านแอปพลิเคชันครับ 🙏`;
+
+                    try {
+                        await sendLineMessage(line_id, lineMessage);
+                    } catch (lineError) {
+                        console.error("LINE SEND ERROR:", lineError);
+                        // ไม่ return error เพื่อให้สถานะในระบบผ่านไปได้
+                    }
+                }
+
+            } catch (dbError) {
+                await client.query("ROLLBACK");
+                throw dbError;
+            } finally {
+                client.release();
             }
 
-            // 4. ส่ง LINE แจ้งเตือนลูกค้า (ทำหลังจากที่ DB มั่นใจว่า Update สำเร็จ)
-            if (line_id) {
-                const lineMessage =
-                    `⚠️ แจ้งเตือนการเดินทาง (เลขที่การจอง: ${booking_id})\n\n` +
-                    `ขออภัยในความไม่สะดวก เนื่องจากคนขับมีความจำเป็นต้องยกเลิกงานในครั้งนี้\n\n` +
-                    `ขณะนี้ระบบกำลังนำงานของคุณกลับเข้าสู่ระบบเพื่อจัดหาคนขับท่านใหม่ให้โดยด่วนที่สุด\n` +
-                    `คุณสามารถตรวจสอบสถานะได้ผ่านแอปพลิเคชันครับ 🙏`;
-
-                try {
-                    await sendLineMessage(line_id, lineMessage);
-                } catch (lineError) {
-                    console.error("LINE SEND ERROR:", lineError);
-                    // ไม่ return error เพื่อให้สถานะในระบบผ่านไปได้
-                }
-            }
-
-        } catch (dbError) {
-            await client.query("ROLLBACK");
-            throw dbError;
-        } finally {
-            client.release();
+            return NextResponse.json({ message: "ยกเลิกงานและส่งการแจ้งเตือนเรียบร้อย" }, { status: 200 });
         }
 
-        return NextResponse.json({ message: "ยกเลิกงานและส่งการแจ้งเตือนเรียบร้อย" }, { status: 200 });
 
     } catch (error) {
         console.error("CANCEL TASK ERROR:", error);

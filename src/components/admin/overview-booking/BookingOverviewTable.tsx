@@ -175,7 +175,7 @@ export default function BookingOverviewTable({
                                 })
                               }
                             >
-                              {shortenText(b.pickup_address, 20)}
+                              {shortenText(b.pickup_address, 10)}
                             </button>
                           ) : (
                             <span className="text-slate-700">-</span>
@@ -184,7 +184,7 @@ export default function BookingOverviewTable({
                       </td>
 
                       <td className="px-4 py-4">
-                        <div className="flex items-start gap-2 max-w-[300px]">
+                        <div className="flex items-start gap-2 max-w-[400px]">
                           <Icon icon="solar:flag-linear" className="text-rose-500 mt-0.5 shrink-0" />
                           {b.dropoff_address ? (
                             <button
@@ -200,7 +200,7 @@ export default function BookingOverviewTable({
                                 })
                               }
                             >
-                              {shortenText(b.dropoff_address, 20)}
+                              {shortenText(b.dropoff_address, 10)}
                             </button>
                           ) : (
                             <span className="text-slate-700">-</span>

@@ -5,6 +5,7 @@ import { Icon } from "@iconify/react";
 import PastDatetimeContent from "@/utils/past-datetime-content";
 import * as FormatDatetime from "@/utils/format-datetime";
 import Button from "@/components/Button";
+import { formatReportType } from "@/utils/format-report-type";
 
 import type { ReportRow } from "@/types/admin/report";
 
@@ -13,9 +14,15 @@ type Props = {
   loading?: boolean;
   onOpenMessage: (report: ReportRow) => void;
   onSelectReport: (report: ReportRow) => void;
+  onOpenAssignModal: (report: ReportRow) => void;
 };
 
-export default function ReportTable({ reports, loading = false, onOpenMessage, onSelectReport }: Props) {
+export default function ReportTable({ reports, loading = false, onOpenMessage, onSelectReport, onOpenAssignModal  }: Props) {
+  // Sort reports by create_at to ensure correct chronological order
+  const sortedReports = [...reports].sort(
+    (a, b) => new Date(b.create_at).getTime() - new Date(a.create_at).getTime()
+  );
+
   if (loading) {
     return (
       <div className="bg-white rounded-xl shadow overflow-x-auto w-full">
@@ -40,6 +47,7 @@ export default function ReportTable({ reports, loading = false, onOpenMessage, o
             <th className="px-4 py-3 text-left text-xs font-semibold uppercase">เวลารายงาน</th>
             <th className="px-4 py-3 text-left text-xs font-semibold uppercase">วัน/เวลาที่จอง</th>
             <th className="px-4 py-3 text-left text-xs font-semibold uppercase">ผู้รายงาน</th>
+            <th className="px-4 py-3 text-left text-xs font-semibold uppercase">ประเภทรายงาน</th>
             <th className="px-4 py-3 text-left text-xs font-semibold uppercase">ข้อความ</th>
             <th className="px-4 py-3 text-center text-xs font-semibold uppercase">สถานะ</th>
             <th className="px-4 py-3 text-center text-xs font-semibold uppercase">จัดการ</th>
@@ -47,7 +55,7 @@ export default function ReportTable({ reports, loading = false, onOpenMessage, o
         </thead>
 
         <tbody>
-          {reports.map((r) => (
+          {sortedReports.map((r) => (
             <tr key={r.report_id} className="border-b border-slate-100 hover:bg-slate-50">
               <td className="px-4 py-3">
                 <div className="flex flex-col gap-1">
@@ -80,11 +88,17 @@ export default function ReportTable({ reports, loading = false, onOpenMessage, o
               </td>
 
               <td className="px-4 py-3 ">
-                <p className="font-medium">{r.actor_type === "user" ? r.user_name : r.driver_name}</p>
+                <p className="font-medium">{r.reporter_name}</p>
                 <p className="text-xs text-slate-500">{r.actor_type === "user" ? "ผู้ป่วย" : "คนขับ"}</p>
               </td>
 
-              <td className="pr-2 pt-3 line-clamp-3 max-w-40 mt-1 flex items-center justify-center">
+              <td className="px-4 py-3">
+                <span className="inline-flex items-center rounded-full bg-slate-100 px-2 py-1 text-xs font-medium text-slate-700">
+                  {formatReportType(r.report_type)}
+                </span>
+              </td>
+
+              <td className="line-clamp-3 max-w-40 mt-1 flex items-center justify-center pt-5">
                 <button
                   type="button"
                   onClick={() => onOpenMessage(r)}
@@ -107,25 +121,41 @@ export default function ReportTable({ reports, loading = false, onOpenMessage, o
               </td>
 
               <td className="px-4 py-3 text-center ">
-                {!r.is_replied ? (
-                  <div className="flex items-center justify-center">
+                <div className="flex items-center justify-center gap-2">
+                  {r.report_type === "JOB_CANCEL" && !r.is_replied && (
+                    <Button
+                      className="bg-[#70C5BE] hover:bg-[#5bb1aa] text-white"
+                      onClick={() => onOpenAssignModal(r)}
+                    >
+                      <div className="flex items-center gap-2 text-sm font-bold">
+                        <Icon icon="solar:clipboard-list-bold" width="16" height="16" />
+                        มอบหมายงาน
+                      </div>
+                    </Button>
+                  )}
+                  {!r.is_replied && r.report_type !== "JOB_CANCEL" ? (
                     <Button className="" onClick={() => onSelectReport(r)}>
                       <div className="flex items-center gap-2 text-sm font-bold">
                         <Icon icon="fa:mail-reply-all" width="16" height="16" />
                         ตอบกลับ
                       </div>
                     </Button>
-                  </div>
-                ) : (
-                  <div className="flex items-center justify-center">
+                  ) : r.is_replied && r.report_type !== "JOB_CANCEL" ? (
                     <Button variant="secondary" onClick={() => onSelectReport(r)}>
                       <div className="flex items-center gap-2 text-sm font-bold">
                         <Icon icon="mdi:history" width="16" height="16" />
                         ดูประวัติ
                       </div>
                     </Button>
-                  </div>
-                )}
+                  ) : r.is_replied && r.report_type === "JOB_CANCEL" ? (
+                    <Button variant="secondary" onClick={() => onSelectReport(r)}>
+                      <div className="flex items-center gap-2 text-sm font-bold">
+                        <Icon icon="mdi:history" width="16" height="16" />
+                        ดูประวัติ
+                      </div>
+                    </Button>
+                  ) : null}
+                </div>
               </td>
             </tr>
           ))}

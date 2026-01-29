@@ -2,6 +2,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Icon } from "@iconify/react";
 import Button from "@/components/Button";
+import ReportTypeDropdown from "./report/ReportTypeDropdown";
 
 type StatItem = {
     label: string;
@@ -37,6 +38,9 @@ type Props<T extends string> = {
     onSearchChange: (v: string) => void;
 
     extraFilters?: React.ReactNode;
+    
+    reportTypeFilter?: string;
+    onReportTypeFilterChange?: (v: string) => void;
 
     onClear: () => void;
 
@@ -59,6 +63,8 @@ export default function AdminPageHeader<T extends string>({
     search,
     onSearchChange,
     extraFilters,
+    reportTypeFilter,
+    onReportTypeFilterChange,
     onClear,
     onRefresh,
     refreshLabel = "รีเฟรช",
@@ -134,10 +140,10 @@ export default function AdminPageHeader<T extends string>({
             </div>
 
             {/* Filters */}
-            <div className="bg-white rounded-2xl p-4 mb-4 flex flex-col gap-2">
+            <div className="bg-white rounded-2xl p-4 mb-4 flex flex-col gap-4">
                 {/* Tabs */}
                 {showTabs && (
-                    <div className="flex flex-wrap items-center gap-2 mb-4">
+                    <div className="flex flex-wrap items-center gap-2 ">
                         <div className="font-bold flex gap-2 text-button-primary items-center">
                             สถานะ:
                             <Icon icon="grommet-icons:status-good" width={24} height={24} />
@@ -216,6 +222,22 @@ export default function AdminPageHeader<T extends string>({
                         {extraFilters}
                     </div>
                 ) : null}
+                
+                {/* Report Type Filter - Position after tabs */}
+                {onReportTypeFilterChange && (
+                    <div className="flex items-center gap-2">
+                        <div className="font-bold flex gap-2 text-button-primary items-center">
+                            ประเภทรายงาน:
+                            <Icon icon="solar:document-text-linear" width={24} height={24} />
+                        </div>
+                        <ReportTypeDropdown
+                            value={reportTypeFilter || ""}
+                            onChange={onReportTypeFilterChange}
+                            className="min-w-[200px]"
+                        />
+                    </div>
+                )}
+                
                 {/* Date + Search */}
                 <div className="flex flex-col md:flex-row gap-3 items-start md:items-center w-full">
                     <div className="flex flex-wrap items-center gap-4">
@@ -253,8 +275,6 @@ export default function AdminPageHeader<T extends string>({
                             focus:outline-none focus:ring-1 focus:ring-[#70C5BE]"
                             />
                         </div>
-
-
 
                         <Button onClick={onClear}>
                             <div className="flex items-center gap-2 text-sm font-bold text-white">

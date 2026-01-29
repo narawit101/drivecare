@@ -12,6 +12,7 @@ import Pusher from "pusher-js";
 import { toast } from "react-toastify";
 import Button from "@/components/Button";
 import ReplyReportModal from "@/components/admin/ReplyReportModal";
+import ModalAssignmentAccept from "@/components/admin/report/modal-assignmemt-accept";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import Pagination from "@/components/admin/common/Pagination";
 import AddressModal from "@/components/admin/manager-users/AddressModal";
@@ -23,6 +24,7 @@ import {
     ReportRow,
 } from "@/types/admin/report";
 import { flattenReports } from "@/utils/report";
+import { getAllReportTypes } from "@/utils/format-report-type";
 
 export default function AdminReportPage() {
     const { admin, isLoading } = useAdmin();
@@ -36,11 +38,15 @@ export default function AdminReportPage() {
 
     const [search, setSearch] = useState<string>("");
     const [selectedDate, setSelectedDate] = useState<string>(""); // yyyy-mm-dd
+    const [reportTypeFilter, setReportTypeFilter] = useState<string>("");
 
     const [currentPage, setCurrentPage] = useState(1);
     const ITEMS_PER_PAGE = 10;
 
     const [selectedReport, setSelectedReport] =
+        useState<ReportRow | null>(null);
+
+    const [assignModalReport, setAssignModalReport] =
         useState<ReportRow | null>(null);
 
     const [replySubmitting, setReplySubmitting] = useState(false);
@@ -61,7 +67,7 @@ export default function AdminReportPage() {
         setLoading(true);
         try {
 
-            const res = await fetch('/api/reports/admin/fetch-reports', {
+            const res = await fetch('/api/reports/admin/fetch-reports-with-reporter', {
                 method: 'GET',
                 credentials: 'include',
                 headers: {
@@ -132,6 +138,9 @@ export default function AdminReportPage() {
         // 🔹 status
         if (statusFilter === "replied" && r.is_replied !== true) return false;
         if (statusFilter === "unreplied" && r.is_replied !== false) return false;
+
+        // 🔹 report type
+        if (reportTypeFilter && r.report_type !== reportTypeFilter) return false;
 
         // 🔹 date
         if (selectedDate) {
@@ -253,12 +262,15 @@ export default function AdminReportPage() {
                     onDateChange={setSelectedDate}
                     search={search}
                     onSearchChange={setSearch}
+                    reportTypeFilter={reportTypeFilter}
+                    onReportTypeFilterChange={setReportTypeFilter}
                     onRefresh={fetchReports}
                     refreshIsLoading={loading}
                     onClear={() => {
                         setSearch("");
                         setSelectedDate("");
                         setStatusFilter("all");
+                        setReportTypeFilter("");
                     }}
                 />
 
@@ -278,6 +290,7 @@ export default function AdminReportPage() {
                                 })
                             }
                             onSelectReport={setSelectedReport}
+                            onOpenAssignModal={setAssignModalReport}
                         />
                     </section>
                 )}
@@ -309,6 +322,15 @@ export default function AdminReportPage() {
                     icon="solar:document-text-linear"
                     iconClassName="text-[#70C5BE]"
                     onClose={() => setMessageModal(null)}
+                />
+            )}
+
+            {assignModalReport && (
+                <ModalAssignmentAccept
+                    isOpen={true}
+                    onClose={() => setAssignModalReport(null)}
+                    reportData={assignModalReport}
+                    fetchReports={fetchReports}
                 />
             )}
         </div>
