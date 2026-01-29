@@ -114,7 +114,7 @@ export default function ReportTable({ reports, loading = false, onOpenMessage, o
 
               <td className="px-4 py-3 text-center">
                 {r.report_type === "JOB_CANCEL" ? (
-                  <span className="inline-flex w-fit items-center rounded-full bg-red-100 px-2 py-1 text-[12px] font-semibold text-red-600">
+                  <span className="inline-flex w-fit items-center rounded-full bg-amber-100 px-2 py-1 text-[12px] font-semibold text-amber-600">
                     รอการจัดสรรใหม่
                   </span>
                 ) : r.is_replied ? (
