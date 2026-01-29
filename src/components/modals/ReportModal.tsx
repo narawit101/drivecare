@@ -100,9 +100,8 @@ export default function ReportModal({
                                         <button
                                             key={r.value}
                                             type="button"
-                                            className={`w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors flex items-center justify-between ${
-                                                reportType === r.value ? "bg-[#70C5BE]/10" : ""
-                                            }`}
+                                            className={`w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors flex items-center justify-between ${reportType === r.value ? "bg-[#70C5BE]/10" : ""
+                                                }`}
                                             onClick={() => handleSelect(r.value)}
                                         >
                                             <span className="text-sm text-gray-900">{r.label}</span>
