@@ -17,7 +17,7 @@ type Props = {
   onOpenAssignModal: (report: ReportRow) => void;
 };
 
-export default function ReportTable({ reports, loading = false, onOpenMessage, onSelectReport, onOpenAssignModal  }: Props) {
+export default function ReportTable({ reports, loading = false, onOpenMessage, onSelectReport, onOpenAssignModal }: Props) {
   // Sort reports by create_at to ensure correct chronological order
   const sortedReports = [...reports].sort(
     (a, b) => new Date(b.create_at).getTime() - new Date(a.create_at).getTime()
