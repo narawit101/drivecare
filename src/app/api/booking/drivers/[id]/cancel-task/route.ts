@@ -45,7 +45,9 @@ export async function PATCH(
             
             // Use luxon for proper timezone handling
             const nowInThailand = DateTime.now().setZone('Asia/Bangkok');
-            const bookingTimeInThailand = DateTime.fromJSDate(bookingStartTime).setZone('Asia/Bangkok');
+            
+            // Database stores UTC time, so we need to treat it as UTC first, then convert to Thailand
+            const bookingTimeInThailand = DateTime.fromJSDate(bookingStartTime, { zone: 'utc' }).setZone('Asia/Bangkok');
             
             console.log("starttime (Thailand)", bookingTimeInThailand.toISO());
             console.log("now (Thailand)", nowInThailand.toISO());
