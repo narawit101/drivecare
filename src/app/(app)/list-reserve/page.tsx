@@ -154,7 +154,7 @@ export default function DriverJob() {
                     <button onClick={() => router.back()} className="p-2 hover:bg-gray-100 rounded-full">
                         <Icon icon="mdi:chevron-left" className="text-3xl" />
                     </button>
-                    <h2 className="text-xl font-bold">จองบริการรถรับส่ง</h2>
+                    <h2 className="text-xl font-bold">รายการจองของฉัน</h2>
                 </div>
             </header>
 
@@ -164,7 +164,7 @@ export default function DriverJob() {
                         กำลังดำเนินการ ({inProgressBookings.length})
                     </button>
                     <button onClick={() => setActiveTab("jobhistory")} className={`flex-1 px-6 py-2.5 rounded-xl text-sm font-bold transition-all ${!isInProgress ? "bg-[#70C5BE] text-white shadow-md" : "text-slate-400"}`}>
-                        ประวัติ ({completedBookings.length})
+                        ประวัติการของ ({completedBookings.length})
                     </button>
                 </div>
 

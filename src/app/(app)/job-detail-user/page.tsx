@@ -245,7 +245,7 @@ function JobDetailUserInner() {
                     <button onClick={() => router.back()} className="p-2 hover:bg-gray-100 rounded-full transition-colors">
                         <Icon icon="mdi:chevron-left" className="text-3xl text-gray-700" />
                     </button>
-                    <h2 className="text-xl font-bold text-gray-800">จองบริการรถรับส่ง</h2>
+                    <h2 className="text-xl font-bold text-gray-800">รายละเอียดการจอง</h2>
                 </div>
             </header>
 
