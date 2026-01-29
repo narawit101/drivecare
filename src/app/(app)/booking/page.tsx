@@ -7,7 +7,7 @@ import LongdoMap from "@/services/map/LongdoMap";
 import PlaceSearch from "@/services/map/PlaceSearch";
 import { Locations } from "@/services/map/location";
 import { useLongdoMap } from "@/services/map/useLongdoMap";
-import { getAddressFromCoords, fetchNearbyHospitals } from '@/services/้hospital/get-near-find'
+import { getAddressFromCoords, fetchNearbyHospitals } from '@/services/hospital/get-near-find'
 import { useSearchParams } from 'next/navigation';
 
 function BookingPageInner() {
