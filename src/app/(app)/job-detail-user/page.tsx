@@ -354,8 +354,7 @@ function JobDetailUserInner() {
                     <div className="mt-8 pt-6 border-t border-dashed border-gray-200 flex justify-between items-center">
                         <button
                             onClick={() => setReportModalOpen(true)}
-                            className="text-xs font-bold text-red-400 flex items-center gap-1 hover:text-red-600"
-                        >
+                            className="text-xs font-bold text-red-400 flex items-center gap-1 hover:text-red-600 " >
                             <Icon icon="mdi:alert-circle-outline" />
                             แจ้งปัญหาการเดินทาง
                         </button>

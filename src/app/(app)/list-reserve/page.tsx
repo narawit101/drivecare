@@ -283,6 +283,7 @@ function BookingCard({ booking, onViewDetail }: { booking: Booking, onViewDetail
                         <div className="min-w-0">
                             <p className="text-[10px] text-slate-400 font-bold">คนขับ</p>
                             <p className="text-xs font-bold text-gray-700 truncate">{booking.driver_first_name ? `${booking.driver_first_name} ${booking.driver_last_name}` : 'รอคนขับรับงาน'}</p>
+                            <p className="text-xs font-bold text-gray-700 truncate">{booking.driver_phone}</p>
                         </div>
                     </div>
                     <div className="text-lg font-bold text-[#70C5BE]">฿{Number(booking.total_price).toLocaleString()}</div>

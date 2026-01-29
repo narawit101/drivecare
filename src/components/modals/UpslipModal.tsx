@@ -60,18 +60,21 @@ export default function PaymentUploadModal({
                 <div className="bg-[#70C5BE]/10 rounded-xl p-3 mb-4 text-center group relative">
                     <p className="text-xs text-[#3a8b85] font-bold uppercase mb-1">บัญชีธนาคาร</p>
 
-                    <div
-                        className="flex items-center justify-center gap-2 cursor-pointer active:scale-95 transition-transform"
-                        onClick={() => {
-                            const accountNumber = "0639076431";
-                            navigator.clipboard.writeText(accountNumber);
-                        }}
-                    >
-                        <p className="text-sm font-bold text-[#70C5BE]">0639076431</p>
-                        <Icon
-                            icon="solar:copy-bold-duotone"
-                            className="text-[#70C5BE] w-4 h-4 hover:text-[#3a8b85]"
+                    <div>
+                        <div className="flex justify-center mb-1.5">
+                        <Image src="/images/qr-payment.png" alt="qr-payment" width={200} height={200}
+                        className="rounded-2xl border border-[#70C5BE]"
                         />
+                        </div>
+                        <p className="text-xs text-[#3a8b85] font-bold uppercase mb-1">ธนาคารกรุงไทย</p>
+                        <div className="flex items-center justify-center gap-2 cursor-pointer active:scale-95 transition-transform"
+                        onClick={()=>{
+                            const accountNumber = "0981848532";
+                            navigator.clipboard.writeText(accountNumber);
+                        }}>
+                            <p className="text-xs text-[#3a8b85] font-bold uppercase mb-1">เลขพร้อมเพย์ 0981848532</p>  
+                            <Icon icon="solar:copy-bold-duotone" className="text-[#70C5BE] w-3 h-3 hover:text-[#3a8b85]"/>  
+                        </div>
                     </div>
                 </div>
                 <div
@@ -122,8 +125,8 @@ export default function PaymentUploadModal({
                         onClick={handleConfirm}
                         disabled={!selectedFile}
                     >
-                        <div className="flex items-center justify-center gap-2">
-                            <Icon icon="solar:check-read-bold" className="text-xl" />
+                        <div className="flex text-sm items-center justify-center gap-2">
+                            <Icon icon="solar:check-read-bold" className="text-sm" />
                             ยืนยันการชำระเงิน
                         </div>
                     </Button>
