@@ -10,10 +10,13 @@ export type ActorType = "user" | "driver";
 export type ReportItem = {
     report_id: number;
     actor_type: ActorType;
+    actor_id?: number;
     report_type: string;
     message: string;
     is_replied: boolean;
     create_at: string;
+    reporter_name?: string;
+    reporter_phone?: string;
 };
 
 // 🔹 1 booking + reports
@@ -50,6 +53,9 @@ export type ReportRow = {
 
     driver_name: string;
     driver_phone: string;
+
+    reporter_name: string;
+    reporter_phone: string;
 
     report_id: number;
     actor_type: ActorType;

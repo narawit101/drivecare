@@ -31,121 +31,126 @@ export default function ReplyReportModal({
     if (!open) return null;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-            <div className="absolute bg-white w-full max-w-md rounded-2xl p-6 shadow-xl">
-
-                {/* Header */}
-                <div className="flex justify-between">
-                    <p className="text-xl font-bold mb-4 text-[#70C5BE]">
-                        ตอบกลับรายงาน
-                    </p>
-                    <div>
+        <div className="fixed inset-0 bg-black/50 bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-xl shadow-xl max-w-xl w-full max-h-[90vh] overflow-y-auto">
+                <div className="p-6">
+                    <div className="flex justify-between items-center mb-6">
+                        <h2 className="text-xl font-bold text-slate-800">
+                            ตอบกลับรายงาน
+                        </h2>
                         <button
                             onClick={() => {
                                 if (isSubmitting) return;
                                 onClose();
                             }}
                             disabled={Boolean(isSubmitting)}
-                            className="absolute cursor-pointer right-4 top-4 text-slate-400 hover:text-slate-600 disabled:cursor-not-allowed disabled:opacity-50"
+                            className="text-slate-400 hover:text-slate-600 transition-colors disabled:cursor-not-allowed disabled:opacity-50"
                         >
-                            <Icon icon="solar:close-circle-linear" className="text-xl" />
+                            <Icon icon="solar:close-circle-linear" className="text-2xl" />
                         </button>
                     </div>
-                </div>
 
-                {/* รายละเอียด */}
-                <div className="space-y-2 text-sm mb-4">
-                    <p>
-                        <span className="text-base text-slate-500 mb-4">รหัสการจอง (Booking ID)</span>{" "}
-                        <span className="font-semibold text-slate-800">#{report.booking_id}</span>
-                    </p>
-                    <p>
-                        <span className="text-base text-slate-500 mb-4">รหัสรายงาน (Report ID)</span>{" "}
-                        <span className="font-semibold text-slate-800">#{report.report_id}</span>
-                    </p>
-                    <p>
-                        <span className="text-base text-slate-500 mb-4">ผู้รายงาน:</span>{" "}
-                        <span className="font-semibold text-slate-800">
-                            {report.actor_type === "user"
-                                ? ` ${report.user_name}`
-                                : ` ${report.driver_name}`} {""}
-                            {report.actor_type === "user" ? "(ผู้ป่วย)" : "(คนขับ)"}
-                        </span>
-                    </p>
-                    <p>
-                        <span className="text-base text-slate-500 mb-4">สถานะ:</span>{" "}
-                        {report.is_replied ? (
-                            <span className="inline-flex w-fit items-center rounded-full bg-emerald-100 px-2 py-1 text-[12px] font-semibold text-emerald-600">
-                                ตอบกลับแล้ว
-                            </span>
-                        ) : (
-                            <span className="inline-flex w-fit items-center rounded-full bg-amber-100 px-2 py-1 text-[12px] font-semibold text-amber-600">
-                                รอตอบกลับ
-                            </span>
-                        )}
-                    </p>
-                    <p className="text-base text-slate-500 mb-4">
-                        เวลา:{" "}
-                        {FormatDatetime.formatThaiShortDate(report.create_at)}{" "}
-                        {FormatDatetime.formatThaiTime(report.create_at)}
-                    </p>
-                </div>
-
-                {/* ข้อความต้นฉบับ */}
-                <div className="mb-4 rounded-lg bg-slate-50 p-3">
-                    <p className="text-base text-slate-600 mb-1 font-bold">ข้อความที่รายงาน</p>
-                    <p className="text-slate-800 whitespace-pre-wrap text-sm">
-                        {report.message}
-                    </p>
-                </div>
-                {report.is_replied === false && (
-                    <>
-                        {/* ช่องตอบ */}
-                        < textarea
-                            className="w-full border-2 border-gray-200 focus:border-[#70C5BE]
-                outline-none rounded-md p-3 min-h-[120px]"
-                            placeholder="พิมพ์ข้อความตอบกลับ"
-                            value={message}
-                            onChange={(e) => setMessage(e.target.value)}
-                        />
-                    </>
-                )}
-
-                {report.is_replied ? (
-                    <p className="text-sm text-center text-emerald-600 mt-2">คุณได้ตอบกลับรายงานนี้แล้ว</p>
-                ) : (
-                    <>{/* Actions */}
-                        <div className="flex gap-3 mt-6">
-                            <Button
-                                variant="secondary"
-                                className="flex-1"
-                                disabled={Boolean(isSubmitting)}
-                                onClick={() => {
-                                    if (isSubmitting) return;
-                                    setMessage("");
-                                    onClose();
-                                }}
-                            >
-                                ยกเลิก
-                            </Button>
-
-                            <Button
-                                variant="primary"
-                                className="flex-1"
-                                disabled={!message || Boolean(isSubmitting)}
-                                buttonIsLoading={Boolean(isSubmitting)}
-                                onClick={async () => {
-                                    if (isSubmitting) return;
-                                    await onSubmit(message);
-                                }}
-                            >
-                                ส่งตอบกลับ
-                            </Button>
+                    <div className="space-y-4">
+                        <div className="bg-slate-50 p-4 rounded-lg">
+                            <h3 className="font-semibold text-slate-700 mb-3">ข้อมูลรายงาน</h3>
+                            <div className="space-y-2 text-sm">
+                                <div className="flex justify-between">
+                                    <span className="text-slate-500">รหัสการจอง:</span>
+                                    <span className="font-medium text-slate-700">#{report.booking_id}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-slate-500">รหัสรายงาน:</span>
+                                    <span className="font-medium text-slate-700">#{report.report_id}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-slate-500">ผู้รายงาน:</span>
+                                    <span className="font-medium text-slate-700">
+                                        {report.reporter_name} ({report.actor_type === "user" ? "ผู้ป่วย" : "คนขับ"})
+                                    </span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-slate-500">สถานะ:</span>
+                                    <div>
+                                        {report.is_replied ? (
+                                            <span className="inline-flex items-center rounded-full bg-emerald-100 px-2 py-1 text-[12px] font-semibold text-emerald-600">
+                                                ตอบกลับแล้ว
+                                            </span>
+                                        ) : (
+                                            <span className="inline-flex items-center rounded-full bg-amber-100 px-2 py-1 text-[12px] font-semibold text-amber-600">
+                                                รอตอบกลับ
+                                            </span>
+                                        )}
+                                    </div>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-slate-500">เวลา:</span>
+                                    <span className="font-medium text-slate-700">
+                                        {FormatDatetime.formatThaiShortDate(report.create_at)} {FormatDatetime.formatThaiTime(report.create_at)}
+                                    </span>
+                                </div>
+                            </div>
                         </div>
-                    </>
-                )}
 
+                        <div className="bg-amber-50 p-4 rounded-lg">
+                            <h3 className="font-semibold text-amber-700 mb-2">ข้อความที่รายงาน</h3>
+                            <p className="text-sm text-amber-600 whitespace-pre-wrap">
+                                {report.message}
+                            </p>
+                        </div>
+                        {report.is_replied === false && (
+                            <div>
+                                <label className="block text-sm font-medium text-slate-700 mb-2">
+                                    ข้อความตอบกลับ:
+                                </label>
+                                <textarea
+                                    className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm hover:bg-slate-50 transition-colors focus:outline-none focus:ring-2 focus:ring-[#70C5BE] focus:border-transparent min-h-[120px]"
+                                    placeholder="พิมพ์ข้อความตอบกลับ"
+                                    value={message}
+                                    onChange={(e) => setMessage(e.target.value)}
+                                />
+                            </div>
+                        )}
+
+                        {report.is_replied ? (
+                            <div className="text-center py-4">
+                                <p className="text-sm text-emerald-600 font-medium">คุณได้ตอบกลับรายงานนี้แล้ว</p>
+                            </div>
+                        ) : (
+                            <div className="flex gap-3 mt-6 items-center justify-center w-full">
+                                <Button
+                                    variant="secondary"
+                                    className="w-full"
+                                    disabled={Boolean(isSubmitting)}
+                                    onClick={() => {
+                                        if (isSubmitting) return;
+                                        setMessage("");
+                                        onClose();
+                                    }}
+                                >
+                                    ยกเลิก
+                                </Button>
+                                <Button
+                                    className="w-full"
+                                    disabled={!message || Boolean(isSubmitting)}
+                                    onClick={async () => {
+                                        if (isSubmitting) return;
+                                        await onSubmit(message);
+                                    }}
+                                >
+                                    {isSubmitting ? (
+                                        <div className="flex items-center justify-center gap-2">
+                                            <Icon icon="solar:loading-linear" className="animate-spin" />
+                                            กำลังส่ง...
+                                        </div>
+                                    ) : (
+                                        "ส่งตอบกลับ"
+                                    )}
+                                </Button>
+                            </div>
+                        )}
+                    </div>
+                </div>
             </div>
-        </div >
+        </div>
     );
 }

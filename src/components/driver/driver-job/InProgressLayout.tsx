@@ -47,7 +47,7 @@ export default function InProgressLayout({
         return (
             <EmptyState
                 title="ยังไม่มีงานที่กำลังดำเนินการ"
-                description="เมื่อคุณรับงานแล้ว ข้อมูลจะแสดงที่นี่"
+                description="เมื่อคุณเริ่มงานแล้ว ข้อมูลจะแสดงที่นี่"
             />
         );
     }

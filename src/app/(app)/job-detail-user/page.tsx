@@ -245,7 +245,7 @@ function JobDetailUserInner() {
                     <button onClick={() => router.back()} className="p-2 hover:bg-gray-100 rounded-full transition-colors">
                         <Icon icon="mdi:chevron-left" className="text-3xl text-gray-700" />
                     </button>
-                    <h2 className="text-xl font-bold text-gray-800">รายละเอียดการจอง</h2>
+                    <h2 className="text-xl font-bold text-gray-800">จองบริการรถรับส่ง</h2>
                 </div>
             </header>
 
@@ -354,7 +354,8 @@ function JobDetailUserInner() {
                     <div className="mt-8 pt-6 border-t border-dashed border-gray-200 flex justify-between items-center">
                         <button
                             onClick={() => setReportModalOpen(true)}
-                            className="text-xs font-bold text-red-400 flex items-center gap-1 hover:text-red-600 " >
+                            className="text-xs font-bold text-red-400 flex items-center gap-1 hover:text-red-600"
+                        >
                             <Icon icon="mdi:alert-circle-outline" />
                             แจ้งปัญหาการเดินทาง
                         </button>

@@ -186,7 +186,7 @@ function BookingPageInner() {
                                 <label className="text-sm font-bold text-gray-700">จุดรับ</label>
                                 <button
                                     onClick={handleCurrentLocation}
-                                    className="text-xs flex items-center gap-1 text-[#70C5BE] hover:text-[#0e6b64] font-semibold cursor-pointer"
+                                    className="text-xs flex items-center gap-1 text-[#70C5BE] hover:text-blue-800 font-semibold"
                                 >
                                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><circle cx="12" cy="12" r="3" /></svg>
                                     ใช้ตำแหน่งปัจจุบัน

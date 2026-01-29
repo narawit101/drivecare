@@ -24,5 +24,6 @@ export const DRIVER_REPORT_TYPES: ReportTypeItem[] = [
     { value: "PATIENT_UNREADY", label: "ผู้ป่วยไม่พร้อมตามเวลานัด" },
     { value: "PAYMENT_PROBLEM", label: "ปัญหาการชำระเงิน" },
     { value: "DANGEROUS_SITUATION", label: "สถานการณ์ไม่ปลอดภัย" },
+    { value: "JOB_CANCEL", label: "ยกเลิกงาน" },
     { value: "OTHER", label: "อื่น ๆ" },
 ];

@@ -13,8 +13,7 @@ yarn dev
 # Step 5: Create docker container
 docker-compose up --build
 
-```
-driv-care
+drivecare
 ├─ docker-compose.yml
 ├─ eslint.config.mjs
 ├─ next.config.ts
@@ -52,8 +51,7 @@ driv-care
 │  │  ├─ line-oa.dev-qrcode.png
 │  │  ├─ line-oa.public-qrcode.png
 │  │  ├─ noprofile-avatar.jpg
-│  │  ├─ qr-lineOA.png
-│  │  └─ qr-payment.png
+│  │  └─ qr-lineOA.png
 │  ├─ next.svg
 │  ├─ vercel.svg
 │  └─ window.svg
@@ -86,9 +84,7 @@ driv-care
 │  │  │  ├─ page.tsx
 │  │  │  ├─ payment
 │  │  │  │  └─ page.tsx
-│  │  │  ├─ settings
-│  │  │  │  └─ page.tsx
-│  │  │  └─ test
+│  │  │  └─ settings
 │  │  │     └─ page.tsx
 │  │  ├─ admin
 │  │  │  ├─ driver
@@ -148,7 +144,7 @@ driv-care
 │  │  │  │     ├─ login
 │  │  │  │     │  └─ route.ts
 │  │  │  │     └─ register
-│  │  │  │        └─ route.ts
+│  │  │  │        └─ route.ts```
 │  │  │  ├─ booking
 │  │  │  │  ├─ admin
 │  │  │  │  │  ├─ bookings

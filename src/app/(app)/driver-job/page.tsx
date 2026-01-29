@@ -146,6 +146,12 @@ export default function DriverJob() {
             }
         });
 
+        channelPersonal.bind("booking.reassigned", (data: any) => {
+            // job reassigned to another driver
+            toast.info(data?.message || "งานนี้ถูกมอบหมายให้คนขับคนอื่นแล้ว");
+            fetchJobs();
+        });
+
         return () => {
             channelGlobal.unbind_all();
             channelPersonal.unbind_all();
