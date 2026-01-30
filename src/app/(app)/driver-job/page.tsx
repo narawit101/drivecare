@@ -822,7 +822,7 @@ export default function DriverJob() {
 
 
 
-            <main className="max-w-5xl mx-auto p-2 sm:p-6 space-y-6">
+            <main className="max-w-5xl mx-auto p-2 sm:p-6 space-y-1">
 
                 <div className="flex bg-white p-1 rounded-2xl shadow-sm border border-slate-100 w-full">
 

@@ -96,8 +96,8 @@ export default function InProgressLayout({
                             <div className="pb-10">
                                 {/* <p className="font-bold text-xl">งานที่อยู่ระหว่างการปฏิบัติงาน</p> */}
 
-                                <div className="shadow-[0_0_10px_rgba(120,198,160,0.3)] mt-2 rounded-xl">
-                                    <div className="flex flex-col gap-8 p-2 sm:p-6">
+                                <div className=" mt-2 rounded-xl">
+                                    <div className="flex flex-col gap-4 p-2 sm:p-4">
                                         <DriverMapWithActions
                                             initMap={initMap}
                                             onMapReady={onMapReady}
@@ -110,7 +110,7 @@ export default function InProgressLayout({
                                             innerClassName="bg-white p-2 sm:p-4 rounded-xl shadow relative"
                                         />
 
-                                        <div className="flex flex-col gap-6 p-2 md:p-6 bg-white rounded-2xl">
+                                        <div className="flex flex-col gap-4 p-2 md:p-4 bg-white rounded-2xl">
                                             <JobScheduleRouteCard
                                                 job={job}
                                                 route={uiRoute}

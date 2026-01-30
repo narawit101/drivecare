@@ -56,7 +56,7 @@ export default function DriverMapWithActions({
 
             md:mt-0
             md:absolute
-            md:top-85
+            md:top-65
             md:right-4
           "
                 >

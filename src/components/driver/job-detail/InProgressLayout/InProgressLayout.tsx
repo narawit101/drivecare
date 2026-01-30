@@ -40,14 +40,7 @@ export default function InProgressLayout(props: Props) {
 
     return (
         <>
-            {!canProcess && !readOnly && <ProcessNotice />}
 
-            <JobStatusSection
-                canProcess={canProcess}
-                status={job.status}
-                onChangeStatus={props.onChangeStatus}
-                onEndJob={props.onEndJob}
-            />
 
             <MapSection
                 initMap={props.initMap}
@@ -58,17 +51,32 @@ export default function InProgressLayout(props: Props) {
                 mapRoute={props.mapRoute}
                 routeMetrics={props.routeMetrics}
             />
-
-            <div className="flex flex-col gap-6 p-2 md:p-6 bg-white rounded-2xl">
-                <JobScheduleRouteCard job={job} route={props.displayRoute} getRouteLabels={props.getRouteLabels} />
-
-                <JobPassengerCard
-                    name={`${job.first_name} ${job.last_name}`}
-                    phone={job.phone_number}
-                    imageSrc={job.profile_img}
-                    allergies={job.allergies ?? []}
-                    congenital_diseases={job.congenital_diseases ?? []}
-                />
+            <div className="flex flex-col lg:flex-row gap-4 ">
+                <div className="lg:w-[67%] w-full flex flex-col gap-4">
+                    {readOnly ? (
+                        <div className="text-center text-gray-500 p-4 text-sm rounded-2xl bg-gray-300/30 border border-gray-100 h-130 items-center flex justify-center">
+                            คุณสามารถดูรายละเอียดได้ แต่ยังไม่สามารถรายงาน/อัปเดตสถานะงานได้จนกว่าจะรับงาน
+                        </div>
+                    ) : (
+                        !canProcess && <ProcessNotice />
+                    )}
+                    <JobStatusSection
+                        canProcess={canProcess}
+                        status={job.status}
+                        onChangeStatus={props.onChangeStatus}
+                        onEndJob={props.onEndJob}
+                    />
+                </div>
+                <div className="lg:w-[33%] w-full flex flex-col gap-4 p-4 bg-white rounded-2xl">
+                    <JobPassengerCard
+                        name={`${job.first_name} ${job.last_name}`}
+                        phone={job.phone_number}
+                        imageSrc={job.profile_img}
+                        allergies={job.allergies ?? []}
+                        congenital_diseases={job.congenital_diseases ?? []}
+                    />
+                    <JobScheduleRouteCard job={job} route={props.displayRoute} getRouteLabels={props.getRouteLabels} />
+                </div>
             </div>
         </>
     );

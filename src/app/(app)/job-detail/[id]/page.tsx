@@ -528,11 +528,7 @@ export default function JobDetail() {
                     }
                 </div>
 
-                {readOnly ? (
-                    <div className="text-center text-gray-500 p-4 text-sm rounded-2xl bg-gray-300/30 border border-gray-100">
-                        งานนี้ยังไม่มีคนขับ คุณสามารถดูรายละเอียดได้ แต่ยังไม่สามารถรายงาน/อัปเดตสถานะงานได้จนกว่าจะรับงาน
-                    </div>
-                ) : null}
+            
                 {isCompleted && <CompletedLayout job={job} timeline={timeline} onFinishJob={finishJob} />}
 
                 {!isCompleted && (
@@ -552,7 +548,9 @@ export default function JobDetail() {
                         onChangeStatus={updateJobStatus}
                         onEndJob={endJob}
                     />
+                    
                 )}
+                
             </div>
             {openReportModal && !readOnly && (
                 <div>

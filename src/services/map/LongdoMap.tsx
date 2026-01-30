@@ -25,7 +25,7 @@ export default function LongdoMap({ initMap, onReady }: Props) {
     }, []);
 
     return (
-        <div className="relative w-full h-[520px] sm:h-[460px] md:h-[400px] bg-slate-100 rounded-xl overflow-hidden">
+        <div className="relative w-full h-[520px] md:h-[300px] bg-slate-100 rounded-xl overflow-hidden">
             <Script
                 src={`https://api.longdo.com/map/?key=${process.env.NEXT_PUBLIC_LONGDO_MAP_KEY}`}
                 strategy="afterInteractive"

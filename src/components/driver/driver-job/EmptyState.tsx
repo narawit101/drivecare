@@ -17,7 +17,7 @@ export default function EmptyState({
     className = "",
 }: Props) {
     return (
-        <div className={`bg-white rounded-3xl p-20 text-center border border-dashed ${className}`.trim()}>
+        <div className={`bg-white rounded-3xl p-20 text-center border border-dashed mt-5 ${className}`.trim()}>
             <Icon
                 icon={icon}
                 className="mx-auto text-5xl text-slate-200 mb-3"

@@ -84,7 +84,7 @@ export default function DriverDashboardApproved({
         <>
             <div className="flex flex-col gap-4 mx-auto pb-4 px-4 mb-4 w-full ">
                 <section className="-mx-4 sm:mx-0">
-                    <p className="text-xl  font-bold text-slate-900 mb-4">งานที่กำลังดำเนินการอยู่</p>
+                    <p className="text-xl  font-bold text-slate-900 mb-2">งานที่กำลังดำเนินการอยู่</p>
                     <InProgressLayout
                         getRouteLabels={getRouteLabels}
                         jobs={inProgressJobs}
