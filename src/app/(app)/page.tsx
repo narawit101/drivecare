@@ -225,7 +225,7 @@ export default function Home() {
 
                 return (
                   <div key={item.booking_id} className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
-                    {/* Header สถานะ */}
+                    
                     <div className="bg-[#E2F3F2] px-5 py-3 flex justify-between items-center">
                       <div className="flex items-center gap-2 text-[#3a8b85] font-bold text-sm">
                         <Icon icon="solar:Map-point-bold-duotone" className="w-5 h-5" />
