@@ -45,11 +45,11 @@ export default function PaymentUploadModal({
     };
 
     return (
-        <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/50 p-4">
-            <div className="bg-white w-full max-w-100  rounded-xl p-5 shadow-2xl animate-in fade-in zoom-in duration-200">
+        <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/50 p-4 ">
+            <div className="bg-white w-full max-w-100 h-[600px] overflow-y-auto rounded-xl p-5 shadow-2xl animate-in fade-in zoom-in duration-200 hide-scrollbar">
                 <div className="text-center mb-2">
                     <h3 className="text-xl font-black text-gray-800 mb-1">แจ้งชำระเงิน</h3>
-                    <p className="text-sm text-gray-400">รายการจอง #{bookingId}</p>
+                    <p className="text-sm text-gray-400">รายการจอง : {bookingId}</p>
                 </div>
                 <div className="bg-[#70C5BE]/10 rounded-xl p-3 mb-4 text-center">
                     <p className="text-xs text-[#3a8b85] font-bold uppercase mb-1">ยอดชำระสุทธิ</p>
@@ -109,7 +109,7 @@ export default function PaymentUploadModal({
                 />
                 <div className="flex gap-4 mt-8">
                     <button
-                        className="flex-1 py-4 text-sm font-bold text-gray-400 hover:text-gray-600 transition-colors"
+                        className="flex-1 py-4 text-sm font-bold text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
                         onClick={() => {
                             setPreviewUrl(null);
                             setSelectedFile(null);

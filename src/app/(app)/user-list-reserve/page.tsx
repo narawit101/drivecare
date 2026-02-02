@@ -170,7 +170,7 @@ export default function DriverJob() {
 
                 <div className={`mb-6 transition-all duration-300
                     ${isInProgress && inProgressBookings.length > 0 ? "block" : "hidden"}`}>
-                    <div className="bg-white rounded-4xl overflow-hidden shadow-sm border border-slate-100 h-[400px]">
+                    <div className="bg-white rounded-4xl overflow-hidden shadow-sm border border-slate-100 ">
                         <LongdoMap
                             initMap={(id) => {
                                 initMap(id);

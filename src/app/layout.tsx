@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
-import logoPaphop from "../../public/images/drive_care.png";
+import logoPaphop from "../../public/images/logo.png";
 import { ToastContainer } from "react-toastify";
 import { UserProvider } from "@/context/UserContext"
 

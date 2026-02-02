@@ -311,9 +311,9 @@ export default function Home() {
 
         <div className="grid grid-cols-3 gap-4 mb-10">
           {[
-            { label: "การจองของฉัน", icon: "solar:calendar-date-bold", path: "/list-reserve" },
-            { label: "ชำระเงิน", icon: "solar:card-2-bold", path: "/payment" },
-            { label: "สมุดสุขภาพ", icon: "solar:health-bold", path: "/health-booking" },
+            { label: "การจองของฉัน", icon: "solar:calendar-date-bold", path: "/user-list-reserve" },
+            { label: "ชำระเงิน", icon: "solar:card-2-bold", path: "/user-payment" },
+            { label: "สมุดสุขภาพ", icon: "solar:health-bold", path: "/health-user-booking" },
           ].map((menu) => (
             <button key={menu.label} onClick={() => router.push(menu.path)} className="flex flex-col items-center gap-2">
               <div className="w-16 h-16 rounded-2xl bg-white shadow-sm border border-gray-50 flex items-center justify-center active:scale-90 transition-all">
@@ -329,14 +329,14 @@ export default function Home() {
           onClick={() => router.push("/booking")}
         >
           <Icon icon="solar:ambulance-bold" className="w-6 h-6" />
-          จองรถพยาบาลทันที
+          จองรถทันที
         </button>
 
 
         <div>
           <div className="flex justify-between items-center mb-4">
             <h4 className="font-bold text-gray-800">ประวัติล่าสุด</h4>
-            <button onClick={() => router.push("/list-reserve")} className="text-sm font-bold text-[#70C5BE]">ดูทั้งหมด</button>
+            <button onClick={() => router.push("/user-list-reserve")} className="text-sm font-bold text-[#70C5BE] cursor-pointer hover:text-[#1b756e]">ดูทั้งหมด</button>
           </div>
 
           <div className="flex overflow-x-auto gap-4 pb-4 no-scrollbar">

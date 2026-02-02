@@ -173,7 +173,7 @@ function BookingPageInner() {
 
             <main className="max-w-5xl mx-auto px-6 py-6 space-y-6">
                 {/* แผนที่ */}
-                <div className="rounded-2xl overflow-hidden shadow-lg border border-[#70C5BE] bg-white h-[350px]   ">
+                <div className="rounded-2xl overflow-hidden shadow-lg border border-[#70C5BE] bg-white    ">
                     <LongdoMap initMap={handleInitMap} />
                 </div>
 

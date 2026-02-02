@@ -51,3 +51,7 @@ next-env.d.ts
 /src/generated/prisma
 
 /src/generated/prisma
+
+/USER_FILE_TREE_PRO.md
+/USER_FILE_TREE_STRUCTURE.md
+/USER_SYSTEM_FLOWS.md

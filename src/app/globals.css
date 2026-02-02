@@ -6,6 +6,15 @@
   font-family: var(--font-prompt);
 }
 
+/* Hide scrollbar class */
+.hide-scrollbar {
+  -ms-overflow-style: none;  /* Internet Explorer 10+ */
+  scrollbar-width: none;  /* Firefox */
+}
+.hide-scrollbar::-webkit-scrollbar { 
+  display: none;  /* Safari and Chrome */
+}
+
 @theme {
   --color-button-primary: #70c5be;
   /* Primary - #4CAF50 (Green) */

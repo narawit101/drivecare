@@ -122,7 +122,7 @@ export default function Login() {
                     <div className="rounded-3xl border border-white/60 bg-white/80 backdrop-blur shadow-xl p-6 sm:p-8">
                         <div className="flex flex-col items-center text-center">
                             <div className="h-20 w-20 rounded-2xl bg-white shadow-sm border border-gray-100 flex items-center justify-center">
-                                <Image src="/images/drive_care.png" alt="logo" width={56} height={56} />
+                                <Image src="/images/logo.png" alt="logo" width={56} height={56} />
                             </div>
                             {/* <p className="mt-4 text-2xl sm:text-3xl font-extrabold text-button-primary">เข้าสู่ระบบ</p> */}
                             <p className="mt-1 text-base text-gray-500 pt-5">เข้าสู่ระบบด้วย LINE เพื่อเข้าใช้งาน</p>

@@ -77,7 +77,7 @@ export default function AdminLogin() {
                     <div className="text-center mb-8">
                         <div className="mx-auto mb-4 h-20 w-20 rounded-xl bg-white flex items-center justify-center shadow-sm border border-slate-100 overflow-hidden">
                             <Image
-                                src="/images/drive_care.png"
+                                src="/images/logo.png"
                                 alt="Drive Care"
                                 width={64}
                                 height={64}

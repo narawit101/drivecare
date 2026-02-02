@@ -72,7 +72,7 @@ export default function AdminRouteLoader({ children, minDurationMs = 200, fadeMs
                 >
                     <div className="flex flex-col items-center gap-3">
                         <Image
-                            src="/images/drive_care.png"
+                            src="/images/logo.png"
                             alt="Paphop"
                             width={72}
                             height={72}

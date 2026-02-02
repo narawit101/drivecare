@@ -148,7 +148,7 @@ export default function RegisterUser() {
                         <div className="p-6 sm:p-8 border-b border-gray-100">
                             <div className="flex items-center gap-3">
                                 <div className="h-12 w-12 rounded-2xl bg-white shadow-sm border border-gray-100 flex items-center justify-center">
-                                    <Image src="/images/drive_care.png" alt="DriveCare" width={34} height={34} />
+                                    <Image src="/images/logo.png" alt="DriveCare" width={34} height={34} />
                                 </div>
                                 <div>
                                     <p className="text-xl sm:text-2xl font-extrabold text-gray-900">ลงทะเบียนผู้ใช้</p>

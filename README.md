@@ -46,7 +46,7 @@ drivecare
 │  ├─ globe.svg
 │  ├─ images
 │  │  ├─ avatar.jpg
-│  │  ├─ drive_care.png
+│  │  ├─ logo.png
 │  │  ├─ line-logo.png
 │  │  ├─ line-oa.dev-qrcode.png
 │  │  ├─ line-oa.public-qrcode.png

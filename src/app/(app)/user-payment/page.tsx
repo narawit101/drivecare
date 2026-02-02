@@ -151,13 +151,20 @@ export default function PaymentPage() {
     const filteredBookings = booking.filter(b => {
         if (statusFilter === "success") return isPaymentSuccess(b)
         if (statusFilter === "pending") return isPaymentPending(b)
-        return true;
+        return true; // "all" ควรแสดงทั้งหมด
     })
 
     const startIndex = (currentPage - 1) * PAGE_SIZE;
     const endIndex = startIndex + PAGE_SIZE;
-    const paginatedPaidJobs = filteredBookings.slice(startIndex, endIndex);
-    const totalPages = Math.ceil(filteredBookings.length / PAGE_SIZE);
+    
+    // สำหรับแท็บ "ชำระแล้ว" - แสดงเฉพาะ paidJobs แต่กรองตาม statusFilter
+    const paginatedPaidJobs = filteredBookings.filter(b => 
+        paidJobs.some(paid => paid.booking_id === b.booking_id)
+    ).slice(startIndex, endIndex);
+    
+    const totalPages = Math.ceil(filteredBookings.filter(b => 
+        paidJobs.some(paid => paid.booking_id === b.booking_id)
+    ).length / PAGE_SIZE);
 
     const handleViewDetail = (id: number) => {
         router.push(`/job-detail-user?id=${id}`);

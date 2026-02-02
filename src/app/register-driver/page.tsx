@@ -359,7 +359,7 @@ export default function RegisterDriver() {
                             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                                 <div className="flex items-center gap-3">
                                     <div className="h-12 w-12 rounded-2xl bg-white shadow-sm border border-gray-100 flex items-center justify-center">
-                                        <Image src="/images/drive_care.png" alt="DriveCare" width={34} height={34} />
+                                        <Image src="/images/logo.png" alt="DriveCare" width={34} height={34} />
                                     </div>
                                     <div>
                                         <p className="text-xl sm:text-2xl font-extrabold text-gray-900">ร่วมงานกับ ไดรฟ์แคร์</p>

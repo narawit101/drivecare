@@ -9,7 +9,7 @@ export const routesMenu = [
         label: "Booking",
         title: "จอง",
         icon: "solar:book-2-linear",
-        href: "/booking"
+        href: "/user-booking"
     },
     // {
     //     label: "Notifications",
