@@ -204,7 +204,7 @@ export default function Home() {
       )}
 
       <main className="w-full max-w-5xl mx-auto px-6 py-4">
-        {/* ส่วนแสดงงานที่กำลังดำเนินการ (Tracking) */}
+        
         {startBookings.length > 0 && (
           <div className="mt-4 mb-8">
             <div className="flex items-center gap-2 mb-4">
