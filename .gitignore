@@ -12,6 +12,8 @@ public/uploads/
 !.yarn/releases
 !.yarn/versions
 
+/project-structrre.md
+/driver-strructure.md
 # testing
 /coverage
 
