@@ -326,7 +326,7 @@ export default function Home() {
 
         {/* ปุ่มจองรถหลัก */}
         <button className="w-full bg-linear-to-r from-[#70C5BE] to-[#5bb1aa] text-white rounded-2xl py-3 font-bold shadow-xl shadow-[#70C5BE]/20 active:scale-[0.98] transition-all mb-10 flex items-center justify-center gap-3 cursor-pointer"
-          onClick={() => router.push("/booking")}
+          onClick={() => router.push("/user-booking")}
         >
           <Icon icon="solar:ambulance-bold" className="w-6 h-6" />
           จองรถทันที
