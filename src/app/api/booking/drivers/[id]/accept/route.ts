@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import pool from "@/lib/db";
-import { pusher } from "@/lib/pusher";
 import { sendLineMessage } from "@/lib/line";
+import { sendDriverAcceptedFlexMessage } from "@/services/sent-line-user/driver-accepted";
+import { pusher } from "@/lib/pusher";
 import { DateTime } from "luxon";
 import { parseDbDateTimeTH, TH_ZONE } from "@/utils/db-datetime";
 
@@ -195,15 +196,30 @@ export async function PATCH(
     // 1. ตรวจสอบว่ามีข้อมูล data และ line_id หรือไม่
     if (data && data.line_id && data.line_id.trim() !== "") {
       try {
-        const message = 
+        await sendDriverAcceptedFlexMessage(
+          data.line_id,
+          data.driver_first_name,
+          data.driver_last_name,
+          data.driver_phone,
+          data.car_brand,
+          data.car_model,
+          data.car_plate,
+          parseInt(booking_id)
+        );
+      } catch (lineError) {
+        console.error("LINE FLEX Notify Error (ignored):", lineError);
+        // Fallback to text message if flex fails
+        try {
+          const fallbackMessage = 
 `🚗 มีคนขับรับงานของคุณแล้ว
 👤 คนขับ: ${data.driver_first_name} ${data.driver_last_name}
 📞 เบอร์โทร: ${data.driver_phone}
 🚘 รถ: ${data.car_brand}-${data.car_model} (${data.car_plate})
 ขอให้เดินทางโดยสวัสดิภาพ 🙏`;
-        await sendLineMessage(data.line_id, message);
-      } catch (lineError) {
-        console.error("LINE Notify Error (ignored):", lineError);
+          await sendLineMessage(data.line_id, fallbackMessage);
+        } catch (fallbackError) {
+          console.error("LINE FALLBACK Notify Error (ignored):", fallbackError);
+        }
       }
     }
 

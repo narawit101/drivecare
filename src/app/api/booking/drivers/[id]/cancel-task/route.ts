@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import pool from "@/lib/db";
-import { sendLineMessage } from "@/lib/line"; // ตรวจสอบว่า path ถูกต้อง
+import { sendLineMessage } from "@/lib/line";
+import { sendDriverCancelledFlexMessage } from "@/services/sent-line-user/driver-cancelled";
 import { pusher } from "@/lib/pusher";
 
 export async function PATCH(
@@ -164,17 +165,21 @@ export async function PATCH(
 
                 // 4. ส่ง LINE แจ้งเตือนลูกค้า (ทำหลังจากที่ DB มั่นใจว่า Update สำเร็จ)
                 if (line_id) {
-                    const lineMessage =
-                        `⚠️ แจ้งเตือนการเดินทาง (เลขที่การจอง: ${booking_id})\n\n` +
-                        `ขออภัยในความไม่สะดวก เนื่องจากคนขับมีความจำเป็นต้องยกเลิกงานในครั้งนี้\n\n` +
-                        `ขณะนี้ระบบกำลังนำงานของคุณกลับเข้าสู่ระบบเพื่อจัดหาคนขับท่านใหม่ให้โดยด่วนที่สุด\n` +
-                        `คุณสามารถตรวจสอบสถานะได้ผ่านแอปพลิเคชันครับ 🙏`;
-
                     try {
-                        await sendLineMessage(line_id, lineMessage);
+                        await sendDriverCancelledFlexMessage(line_id, parseInt(booking_id));
                     } catch (lineError) {
-                        console.error("LINE SEND ERROR:", lineError);
-                        // ไม่ return error เพื่อให้สถานะในระบบผ่านไปได้
+                        console.error("LINE FLEX SEND ERROR:", lineError);
+                        // Fallback to text message if flex fails
+                        try {
+                            const fallbackLineMessage =
+                                `⚠️ แจ้งเตือนการเดินทาง (เลขที่การจอง: ${booking_id})\n\n` +
+                                `ขออภัยในความไม่สะดวก เนื่องจากคนขับมีความจำเป็นต้องยกเลิกงานในครั้งนี้\n\n` +
+                                `ขณะนี้ระบบกำลังนำงานของคุณกลับเข้าสู่ระบบเพื่อจัดหาคนขับท่านใหม่ให้โดยด่วนที่สุด\n` +
+                                `คุณสามารถตรวจสอบสถานะได้ผ่านแอปพลิเคชันครับ 🙏`;
+                            await sendLineMessage(line_id, fallbackLineMessage);
+                        } catch (fallbackError) {
+                            console.error("LINE FALLBACK SEND ERROR:", fallbackError);
+                        }
                     }
                 }
 

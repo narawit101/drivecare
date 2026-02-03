@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import pool from "@/lib/db";
 import { pusher } from "@/lib/pusher";
 import { sendLineMessage } from "@/lib/line";
+import { sendPaymentVerificationFlexMessage } from "@/services/sent-line-user/payment-verification";
 
 export async function PATCH(
   request: Request,
@@ -111,16 +112,25 @@ export async function PATCH(
 
     /* ---------------- 💬 LINE ---------------- */
     if (booking.line_id) {
-      const msg =
-        status === "verified"
-          ? "✅ การชำระเงินของคุณได้รับการตรวจสอบแล้ว"
-          : `❌ การชำระเงินไม่ผ่านการตรวจสอบกรุณาไปที่หน้าชำระเงินเพื่ออัปโหลดสลิปใหม่อีกครั้ง
-            เลขที่การจอง: ${booking_id}`;
-
       try {
-        await sendLineMessage(booking.line_id, msg);
+        await sendPaymentVerificationFlexMessage(
+          booking.line_id,
+          parseInt(booking_id),
+          status as "verified" | "rejected"
+        );
       } catch (err) {
-        console.error("LINE ERROR:", err);
+        console.error("LINE FLEX ERROR:", err);
+        // Fallback to text message if flex fails
+        try {
+          const msg =
+            status === "verified"
+              ? "✅ การชำระเงินของคุณได้รับการตรวจสอบแล้ว"
+              : `❌ การชำระเงินไม่ผ่านการตรวจสอบกรุณาไปที่หน้าชำระเงินเพื่ออัปโหลดสลิปใหม่อีกครั้ง
+                เลขที่การจอง: ${booking_id}`;
+          await sendLineMessage(booking.line_id, msg);
+        } catch (fallbackErr) {
+          console.error("LINE FALLBACK ERROR:", fallbackErr);
+        }
       }
     }
 

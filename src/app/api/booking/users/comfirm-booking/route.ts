@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import pool from "@/lib/db";
 import { pusher } from "@/lib/pusher";
 import { sendLineMessage } from "@/lib/line";
+import { sendFlexMessage } from "@/services/sent-line-user/success-reserved";
 import { DateTime } from "luxon";
 import { parseDbDateTimeTH, TH_ZONE } from "@/utils/db-datetime";
 
@@ -166,12 +167,18 @@ export async function POST(request: NextRequest) {
 
     // 5. แจ้ง LINE หา driver (ถ้ามี)
     if (user_id && userLineId) {
-      const msg =
-        `✅ การจองของคุณสำเร็จแล้ว\n\n` + `เลขที่การจอง: ${booking_id}\n`;
       try {
-        await sendLineMessage(userLineId, msg);
+        const dropoffAddress = bookingData.rows[0]?.dropoff_address;
+        const bookingDate = bookingData.rows[0]?.booking_date;
+        await sendFlexMessage(userLineId, booking_id, dropoffAddress, bookingDate);
       } catch (err) {
-        console.error("LINE SEND ERROR:", err);
+        console.error("LINE FLEX SEND ERROR:", err);
+        try {
+          const fallbackMsg = `✅ การจองของคุณสำเร็จแล้ว\n\nเลขที่การจอง: ${booking_id}`;
+          await sendLineMessage(userLineId, fallbackMsg);
+        } catch (fallbackErr) {
+          console.error("LINE FALLBACK SEND ERROR:", fallbackErr);
+        }
       }
     }
 

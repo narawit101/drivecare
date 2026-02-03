@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import pool from "@/lib/db";
 import { calculatePrice } from "@/services/calculatePrice";
 import { sendLineMessage } from "@/lib/line";
+import { sendPaymentPendingFlexMessage } from "@/services/sent-line-user/payment-pending";
 import { DateTime } from "luxon";
 import { pusher } from "@/lib/pusher";
 import { parseDbDateTimeTH, TH_ZONE } from "@/utils/db-datetime";
@@ -117,7 +118,19 @@ export async function PATCH(
       console.error("PUSHER TRIGGER ERROR (ignored):", e);
     }
     if (line_id) {
-      const lineMessage = `
+      try {
+        await sendPaymentPendingFlexMessage(
+          line_id,
+          parseInt(booking_id),
+          diff_hours,
+          total_price,
+          now.toFormat("dd/MM/yyyy HH:mm")
+        );
+      } catch (lineError) {
+        console.error("LINE FLEX SEND ERROR:", lineError);
+        // Fallback to text message if flex fails
+        try {
+          const fallbackLineMessage = `
 🚑 การเดินทางของคุณสำเร็จแล้ว
 
 ⏱ ระยะเวลา: ${diff_hours.toFixed(2)} ชั่วโมง
@@ -125,13 +138,11 @@ export async function PATCH(
 
 กรุณาชำระเงินและแนบสลิปผ่านแอปพลิเคชันของเราเพื่อยืนยันการชำระเงิน
 ขอบคุณที่ใช้บริการ 🙏
-      `.trim();
-
-      try {
-        await sendLineMessage(line_id, lineMessage);
-      } catch (lineError) {
-        console.error("LINE SEND ERROR:", lineError);
-        // ❗ ไม่ throw เพื่อไม่ให้ API พัง
+          `.trim();
+          await sendLineMessage(line_id, fallbackLineMessage);
+        } catch (fallbackError) {
+          console.error("LINE FALLBACK SEND ERROR:", fallbackError);
+        }
       }
     }
 

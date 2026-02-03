@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import pool from "@/lib/db";
 import { sendLineMessage } from "@/lib/line";
+import { sendStatusUpdateFlexMessage } from "@/services/sent-line-user/status-update";
 import { pusher } from "@/lib/pusher";
 import { DateTime } from "luxon";
 import { parseDbDateTimeTH, TH_ZONE } from "@/utils/db-datetime";
@@ -238,14 +239,26 @@ export async function PATCH(
 
     try {
       if (lineId) {
-        await sendLineMessage(
+        await sendStatusUpdateFlexMessage(
           lineId,
-          `🚑 สถานะการเดินทางของคุณถูกอัปเดต\n${thaiStatus}`
+          parseInt(booking_id),
+          thaiStatus,
+          new_status
         );
       }
     } catch (err) {
-      console.error("❌ LINE PUSH FAILED", err);
-      // ❗ ไม่ throw
+      console.error("❌ LINE FLEX PUSH FAILED", err);
+      // Fallback to text message if flex fails
+      try {
+        if (lineId) {
+          await sendLineMessage(
+            lineId,
+            `🚑 สถานะการเดินทางของคุณถูกอัปเดต\n${thaiStatus}`
+          );
+        }
+      } catch (fallbackErr) {
+        console.error("❌ LINE FALLBACK PUSH FAILED", fallbackErr);
+      }
     }
 
     return NextResponse.json({

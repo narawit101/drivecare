@@ -365,7 +365,7 @@ export default function Home() {
                     <div className="flex items-center justify-between">
                       <button
                         onClick={() => {
-                          const url = `/booking?pickup=${encodeURIComponent(item.pickup_address)}` +
+                          const url = `/user-booking?pickup=${encodeURIComponent(item.pickup_address)}` +
                             `&p_lat=${item.pickup_lat}` +
                             `&p_lon=${item.pickup_lng}` +
                             `&dropoff=${encodeURIComponent(item.dropoff_address)}` +
