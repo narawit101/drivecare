@@ -1,1 +1,10 @@
-{}
+{
+    "cSpell.words": [],
+    "cSpell.enabled": false,
+    "cSpell.enabledFileTypes": {
+        "typescript": false,
+        "typescriptreact": false,
+        "javascript": false,
+        "javascriptreact": false
+    }
+}

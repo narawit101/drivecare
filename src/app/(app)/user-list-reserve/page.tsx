@@ -33,6 +33,15 @@ export default function DriverJob() {
 
     const isInProgress = activeTab === "jobinprogress";
 
+    useEffect(() => {
+        if (!isLoad) return;
+        if (!token) {
+            router.replace("/login");
+            return;
+        }
+        if (userData?.role !== "user") router.replace("/");
+    }, [isLoad, token, userData, router]);
+
     // 1. Fetch Data
     const fetchAllBooking = useCallback(async () => {
         if (!token) return;
@@ -141,7 +150,7 @@ export default function DriverJob() {
     }, [mapReady, inProgressBookings, isInProgress, renderRoute, clearRoute]);
 
 
-    // --- อื่นๆ ---
+    
     useEffect(() => { setStatusFilter("all"); setCurrentPage(1); }, [activeTab]);
     const handleViewDetail = (id: number) => router.push(`/job-detail-user?id=${id}`);
 

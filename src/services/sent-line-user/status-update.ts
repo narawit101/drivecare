@@ -16,7 +16,7 @@ export const sendStatusUpdateFlexMessage = async (
                 contents: [
                     {
                         type: "text",
-                        text: "อัปเดตสถานะการเดินทาง !",
+                        text: "อัปเดตสถานะการเดินทาง",
                         weight: "bold",
                         size: "xl",
                         color: "#70C5BE",
@@ -89,7 +89,7 @@ export const sendStatusUpdateFlexMessage = async (
                         action: {
                             type: "uri",
                             label: "ติดตามสถานะ",
-                            uri: "https://drive-care-gilt.vercel.app",
+                            uri: "https://drive-care-gilt.vercel.app/user-list-reserve",
                         },
                         color: "#70C5BE",
                     },

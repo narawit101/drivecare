@@ -15,7 +15,7 @@ export const sendPaymentVerificationFlexMessage = async (
                 contents: [
                     {
                         type: "text",
-                        text: status === "verified" ? "การชำระเงินผ่านแล้ว" : "การชำระเงินไม่ผ่าน",
+                        text: status === "verified" ? "การชำระเงินผ่าน" : "การชำระเงินไม่ผ่าน",
                         weight: "bold",
                         size: "xl",
                         color: status === "verified" ? "#70C5BE" : "#FF6B6B",
@@ -56,14 +56,7 @@ export const sendPaymentVerificationFlexMessage = async (
                         layout: "vertical",
                         margin: "lg",
                         contents: [
-                            {
-                                type: "text",
-                                text: status === "verified" ? "✅ การชำระเงินของคุณได้รับการตรวจสอบแล้ว" : "❌ การชำระเงินไม่ผ่านการตรวจสอบ",
-                                weight: "bold",
-                                size: "md",
-                                color: status === "verified" ? "#70C5BE" : "#FF6B6B",
-                                margin: "md",
-                            },
+                            
                             {
                                 type: "text",
                                 text: status === "verified" 
@@ -74,24 +67,6 @@ export const sendPaymentVerificationFlexMessage = async (
                                 wrap: true,
                             },
                         ],
-                    },
-                ],
-            },
-            footer: {
-                type: "box",
-                layout: "vertical",
-                spacing: "sm",
-                contents: [
-                    {
-                        type: "button",
-                        style: status === "verified" ? "secondary" : "primary",
-                        height: "sm",
-                        action: {
-                            type: "uri",
-                            label: status === "verified" ? "ดูประวัติ" : "ชำระเงินใหม่",
-                            uri: "https://drive-care-gilt.vercel.app",
-                        },
-                        color: status === "verified" ? "#70C5BE" : "#FF6B6B",
                     },
                 ],
             },
