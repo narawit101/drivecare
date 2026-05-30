@@ -131,27 +131,47 @@ export default function RegisterDriver() {
     };
 
     const LINE_LIFF_ID = process.env.NEXT_PUBLIC_LINE_LIFF_ID;
-    const API_URL = process.env.NEXT_PUBLIC_API;
+    const API_URL = process.env.NEXT_PUBLIC_API || "/api";
 
     useEffect(() => {
-        liff.init({ liffId: LINE_LIFF_ID! });
+        const initLiff = async () => {
+            try {
+                if (!liff.id) {
+                    await liff.init({ liffId: LINE_LIFF_ID! });
+                }
+
+                if (liff.isLoggedIn()) {
+                    const profile = await liff.getProfile();
+                    const lineProfile = {
+                        line_id: profile.userId,
+                        name: profile.displayName,
+                        image: profile.pictureUrl,
+                    };
+                    sessionStorage.setItem("lineProfile", JSON.stringify(lineProfile));
+                }
+            } catch (err) {
+                console.error("LIFF init error:", err);
+            }
+        };
+
+        initLiff();
     }, []);
 
     useEffect(() => {
-        if (!isLoad) {
-            return
-        }
-        if (userData && token && userData.role === "driver") {
-            router.replace("/driver-dashboard")
-        }
-    }, [isLoad, userData, token]);
+        if (!isLoad) return;
 
-    useEffect(() => {
-        const temp = sessionStorage.getItem("lineProfile");
         if (userData && token && userData.role === "driver") {
             router.replace("/driver-dashboard");
             return;
         }
+
+        const temp = sessionStorage.getItem("lineProfile");
+        if (!temp && !userData && !token) {
+            toast.error("กรุณาล็อกอินก่อนลงทะเบียน");
+            router.push("/login");
+            return;
+        }
+
         if (!temp && userData) {
             const autoLineProfile = {
                 line_id: userData.line_id,
@@ -159,12 +179,8 @@ export default function RegisterDriver() {
                 image: userData.profile_img,
             };
             sessionStorage.setItem("lineProfile", JSON.stringify(autoLineProfile));
-        } else if (!temp && !userData) {
-            toast.error("กรุณาล็อกอินก่อนลงทะเบียน");
-            router.push("/login");
-            return;
         }
-    }, [userData, token]);
+    }, [isLoad, userData, token]);
 
     const handleChange = (e: React.ChangeEvent<AuthFormElement>) => {
         const name = e.target.name as keyof RegisterDriverFormData;

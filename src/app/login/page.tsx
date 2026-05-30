@@ -18,7 +18,7 @@ export default function Login() {
   const { setUserData, setToken, token, isLoad, userData } = useUser();
   const [loading, setLoading] = useState(false);
   const LINE_LIFF_ID = process.env.NEXT_PUBLIC_LINE_LIFF_ID;
-  const API_URL = process.env.NEXT_PUBLIC_API;
+  const API_URL = process.env.NEXT_PUBLIC_API || "/api";
   const [showModal, setShowModal] = useState(false);
   const [showRoleSelectionModal, setShowRoleSelectionModal] = useState(false);
   const [tempLineId, setTempLineId] = useState<string | null>(null);

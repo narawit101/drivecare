@@ -11,7 +11,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     const [userData, setUserData] = useState<AnyUserProfile | null>(null)
     const [isLoad, setIsLoad] = useState(false)
 
-    const API_URL = process.env.NEXT_PUBLIC_API!
+    const API_URL = process.env.NEXT_PUBLIC_API || "/api"
 
     // 1️⃣ โหลด token
     // 1️⃣ โหลด token ครั้งแรก
