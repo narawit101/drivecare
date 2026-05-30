@@ -31,6 +31,8 @@ This document details the guidelines, coding rules, and conventions that the AI 
 - **Realtime events** must be dispatched through `src/lib/pusher.ts`.
 - **LINE notifications** must only go through the `src/lib/line.ts` integration client.
 - **Price calculations** must use the `calculatePrice.ts` service helper under `src/services/`.
+- **Tailwind CSS v4 Conventions**:
+  - Use the canonical Tailwind CSS v4 class names. Specifically, `bg-gradient-to-r` is written as `bg-linear-to-r` (e.g. `bg-linear-to-r from-[#70C5BE]/15 via-white to-white`).
 
 ---
 

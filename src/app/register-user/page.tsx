@@ -172,6 +172,22 @@ export default function RegisterUser() {
                             <form className="flex flex-col gap-4 w-full" onSubmit={handleSubmit}>
                                 <p className="text-lg sm:text-xl font-extrabold text-[#70C5BE]">ข้อมูลของคุณ</p>
 
+                                {/* User Registration Guide */}
+                                <div className="bg-sky-50/50 border border-sky-200 rounded-2xl p-4 mb-2 text-sm text-sky-800">
+                                    <p className="font-bold flex items-center gap-1.5 mb-1">
+                                        <svg className="w-4.5 h-4.5 text-sky-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        ข้อแนะนำการลงทะเบียนเพื่อรับบริการ
+                                    </p>
+                                    <ul className="list-decimal list-inside space-y-1 text-sky-700/90 font-light">
+                                        <li>กรอกชื่อจริง-นามสกุลจริง เพื่อประโยชน์และความถูกต้องในการรับบริการเดินทาง</li>
+                                        <li>ใช้เบอร์โทรศัพท์จริงที่ติดต่อได้สะดวกสำหรับการติดต่อประสานงานจากคนขับ</li>
+                                        <li>กรอกข้อมูลที่อยู่ปัจจุบันโดยละเอียด เพื่อความสะดวกในการระบุจุดรับ-ส่ง</li>
+                                        <li>หลังการลงทะเบียน ควรเพิ่มเพื่อนระบบ LINE OA เพื่อรับข้อความแจ้งเตือนสถานะแบบทันท่วงที</li>
+                                    </ul>
+                                </div>
+
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div className="flex flex-col gap-2">
                                         <span className="text-sm text-gray-700">ชื่อจริง *</span>

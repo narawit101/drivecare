@@ -410,6 +410,24 @@ export default function RegisterDriver() {
                                 {step === 1 && (
                                     <>
                                         <p className="text-lg sm:text-xl font-extrabold text-[#70C5BE]">ข้อมูลทั่วไป</p>
+
+                                        {/* Driver Registration Guide */}
+                                        <div className="bg-emerald-50/50 border border-emerald-200 rounded-2xl p-4 mb-2 text-sm text-emerald-800">
+                                            <p className="font-bold flex items-center gap-1.5 mb-1">
+                                                <svg className="w-4.5 h-4.5 text-emerald-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                                </svg>
+                                                เอกสารที่ต้องใช้ในการสมัครพาร์ทเนอร์คนขับ
+                                            </p>
+                                            <p className="text-xs text-emerald-700/80 mb-2">กรุณาอัปโหลดรูปภาพเอกสารต่อไปนี้ให้ถูกต้องและชัดเจนเพื่อการอนุมัติที่รวดเร็ว:</p>
+                                            <ul className="list-decimal list-inside space-y-1 text-emerald-700/90 font-light">
+                                                <li>รูปภาพโปรไฟล์ตนเอง</li>
+                                                <li>รูปภาพบัตรประชาชน</li>
+                                                <li>รูปภาพใบอนุญาตขับรถยนต์</li>
+                                                <li>รูปภาพรถยนต์ภายนอก (เห็นป้ายทะเบียนชัดเจน)</li>
+                                                <li>รูปภาพใบ พ.ร.บ. รถยนต์</li>
+                                            </ul>
+                                        </div>
                                         <div className="flex flex-col gap-2">
                                             <span className="text-sm sm:text-base font-light">รูปโปรไฟล์ *</span>
                                             {previews.profile_img && (

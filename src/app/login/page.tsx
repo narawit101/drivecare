@@ -9,9 +9,11 @@ import type { LineProfileSession } from "@/types/auth/line";
 
 import Button from "@/components/Button";
 import LineNotifyModal from "@/components/modals/LineNotifyModal";
+import SystemGuideModal from "@/components/modals/SystemGuideModal";
 
 export default function Login() {
   const [showLineNotifyModal, setShowLineNotifyModal] = useState(false);
+  const [showSystemGuideModal, setShowSystemGuideModal] = useState(false);
   const router = useRouter();
   const { setUserData, setToken, token, isLoad, userData } = useUser();
   const [loading, setLoading] = useState(false);
@@ -156,11 +158,11 @@ export default function Login() {
                 </div>
               </Button>
 
-              <div className="mt-6 flex items-center justify-center">
+              <div className="mt-6 flex items-center justify-center gap-3 sm:gap-4 text-sm font-semibold">
                 <button
                   type="button"
-                  onClick={() => setShowLineNotifyModal(true)}
-                  className="cursor-pointer text-[#70C5BE] font-semibold flex items-center gap-2 hover:underline"
+                  onClick={() => setShowSystemGuideModal(true)}
+                  className="cursor-pointer text-[#70C5BE] hover:text-[#5bb2ab] transition-colors flex items-center gap-1.5 hover:underline"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -169,7 +171,32 @@ export default function Login() {
                     viewBox="0 0 24 24"
                     fill="none"
                     stroke="currentColor"
-                    strokeWidth="2"
+                    strokeWidth="2.2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="16" x2="12" y2="12"></line>
+                    <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                  </svg>
+                  คู่มือวิธีใช้งานระบบ
+                </button>
+
+                <div className="hidden sm:block h-3.5 w-px bg-gray-200"></div>
+
+                <button
+                  type="button"
+                  onClick={() => setShowLineNotifyModal(true)}
+                  className="cursor-pointer text-[#70C5BE] hover:text-[#5bb2ab] transition-colors flex items-center gap-1.5 hover:underline"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.2"
                     strokeLinecap="round"
                     strokeLinejoin="round"
                   >
@@ -438,6 +465,10 @@ export default function Login() {
           onClose={() => setShowLineNotifyModal(false)}
         />
       )}
+      <SystemGuideModal
+        open={showSystemGuideModal}
+        onClose={() => setShowSystemGuideModal(false)}
+      />
     </>
   );
 }
