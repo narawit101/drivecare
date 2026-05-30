@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import pool from "@/lib/db";
+import { cacheGet } from "@/lib/cache";
+import { CacheKeys, TTL } from "@/lib/cache-keys";
 
 export async function GET(
   req: Request,
@@ -13,37 +15,44 @@ export async function GET(
       return NextResponse.json({ message: "unauthorized" }, { status: 401 });
     }
 
-    const result = await pool.query(
-      `
-      SELECT 
-        b.booking_id, b.booking_date, b.start_time, b.status, b.total_price, b.total_hours, b.payment_status,
-        u.first_name, u.last_name,
-        dr.driver_id,
-        dr.first_name AS driver_first_name, 
-        dr.last_name AS driver_last_name, 
-        dr.phone_number AS driver_phone_number, 
-        dr.profile_img AS driver_profile_img,
-        dr.car_brand, dr.car_model, dr.car_plate,
-
-        l.pickup_address, l.pickup_lat, l.pickup_lng,
-        l.dropoff_address, l.dropoff_lat, l.dropoff_lng,
-
-        hr.weight, 
-        hr.height, 
-        hr.bmi, 
-        hr.congenital_diseases, 
-        hr.allergies
-      FROM bookings b
-      JOIN users u ON b.user_id = u.user_id
-      LEFT JOIN locations l ON b.booking_id = l.booking_id
-      LEFT JOIN drivers dr ON b.driver_id = dr.driver_id
-      LEFT JOIN health_records hr ON b.user_id = hr.user_id
-      WHERE b.booking_id = $1 AND b.user_id = $2
-      `,
-      [id, user_id],
+    const job = await cacheGet(
+      CacheKeys.bookingUserDetail(id),
+      TTL.BOOKING_DETAIL,
+      async () => {
+        const result = await pool.query(
+          `
+          SELECT 
+            b.booking_id, b.booking_date, b.start_time, b.status, b.total_price, b.total_hours, b.payment_status,
+            u.first_name, u.last_name,
+            dr.driver_id,
+            dr.first_name AS driver_first_name, 
+            dr.last_name AS driver_last_name, 
+            dr.phone_number AS driver_phone_number, 
+            dr.profile_img AS driver_profile_img,
+            dr.car_brand, dr.car_model, dr.car_plate,
+    
+            l.pickup_address, l.pickup_lat, l.pickup_lng,
+            l.dropoff_address, l.dropoff_lat, l.dropoff_lng,
+    
+            hr.weight, 
+            hr.height, 
+            hr.bmi, 
+            hr.congenital_diseases, 
+            hr.allergies
+          FROM bookings b
+          JOIN users u ON b.user_id = u.user_id
+          LEFT JOIN locations l ON b.booking_id = l.booking_id
+          LEFT JOIN drivers dr ON b.driver_id = dr.driver_id
+          LEFT JOIN health_records hr ON b.user_id = hr.user_id
+          WHERE b.booking_id = $1 AND b.user_id = $2
+          `,
+          [id, user_id],
+        );
+        return result.rows[0] || null;
+      }
     );
 
-    if (result.rowCount === 0) {
+    if (!job) {
       return NextResponse.json(
         { message: "ไม่พบข้อมูลการจอง" },
         { status: 404 },
@@ -52,7 +61,7 @@ export async function GET(
 
     // ส่งค่ากลับเป็นออบเจกต์ job เพื่อให้ Frontend ใช้งานได้ทันที
     return NextResponse.json(
-      { message: "สำเร็จ", job: result.rows[0] },
+      { message: "สำเร็จ", job },
       { status: 200 },
     );
   } catch (error) {
@@ -63,3 +72,4 @@ export async function GET(
     );
   }
 }
+

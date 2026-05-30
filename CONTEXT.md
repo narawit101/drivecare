@@ -13,6 +13,7 @@ DriveCare is a multi-role web application designed to facilitate patient transpo
 | **Frontend** | Next.js 16 (App Router), React 19, Tailwind CSS 4, DaisyUI | Responsive, modern, and high-performance UI |
 | **Backend** | Next.js App Router (Route Handlers) | Serverless API endpoints |
 | **Database** | PostgreSQL | Relational database (via custom db helper `src/lib/db.ts`) |
+| **Caching** | Redis (Local / Upstash) | API performance optimization, SWR, and DB connection saving |
 | **Realtime** | Pusher | Live location and booking status synchronization |
 | **Maps & Routing** | Longdo Map API | Location search, route drawing, and distance/ETA calculation |
 | **Integrations** | LINE LIFF / LINE Messaging API | Seamless login flow and push notifications |
@@ -135,7 +136,10 @@ src/
     ├── 📄 db.ts                        # Custom pg-pool database query client
     ├── 📄 line.ts                      # LINE Notify integration
     ├── 📄 pusher.ts                    # Pusher triggers (realtime events)
-    └── 📄 cloudinary.ts                # Cloudinary image upload client
+    ├── 📄 cloudinary.ts                # Cloudinary image upload client
+    ├── 📄 redis.ts                     # Redis client connection singleton
+    ├── 📄 cache.ts                     # Caching logic helper and invalidation hooks
+    └── 📄 cache-keys.ts                # Caching prefix hierarchy and TTL constants
 ```
 
 ---
@@ -190,3 +194,29 @@ Based on database queries within the `src/app/api/` handlers:
 | **SUCCESS** | Admin | Approves slip | Shows success receipt & invoice | History (Completed status) | Moves to revenue metrics & history |
 | **PAY_FAILED** | Admin | Rejects slip | Shows error & re-upload form | History (Completed status) | Moves back to verified-slip list |
 | **CANCELLED** | User / Admin / Driver | Cancels booking | Shows booking cancelled | Removed from dashboard | Moved to cancellation logs |
+
+---
+
+## ⚡ 6. Redis Caching & Invalidation Flow
+
+To optimize operational efficiency under active load, the platform utilizes Redis to cache heavy query results and session details, governed by an event-driven cache invalidation policy.
+
+### Caching Strategy Overview
+
+| Cache Key Pattern | TTL | Invalidation Triggers |
+|---|---|---|
+| `drivecare:user:{userId}:profile` | 5m | Profile updates, avatar uploads |
+| `drivecare:driver:drv_{driverId}:profile` | 5m | Profile updates, online status changes, avatar uploads |
+| `drivecare:admin:adm_{adminId}:me` | 10m | Admin logouts |
+| `drivecare:admin:global:dashboard:[startDate]:[endDate]` | 3m | Booking updates, slip verifications, new registrations |
+| `drivecare:booking:usr_{userId}:my-bookings` | 30s | New bookings, cancellations, driver assignment |
+| `drivecare:booking:drv_{driverId}:my-jobs:[tab]` | 30s | Job assignments, accepts, status progression updates |
+| `drivecare:booking:bk_{bookingId}:[detail]` | 15s | Status changes, log timeline events |
+| `drivecare:booking:global:admin-bookings` | 30s | Any booking status change, manual assignments |
+| `drivecare:driver:global:all-drivers` | 2m | Driver registrations, online status changes |
+
+### Cache Control Rules
+
+1. **DB Fallback Guarantee:** All cache calls are wrapped in `cacheGet()`. If Redis goes offline, API routes automatically fall back to standard PostgreSQL queries without blocking the request.
+2. **Instant Invalidation on Write:** Every POST/PATCH/PUT/DELETE handler that updates a user profile, driver status, or booking status triggers immediate cache eviction via `cacheInvalidate` or `invalidateBooking`. It does not rely on TTL expiration to refresh data.
+3. **Multi-Tab Safety:** Keys that vary based on parameters (like date ranges on the dashboard or tabs on driver job lists) include these parameters in the cache key. Wildcards (using SCAN patterns) are used to wipe all parameter variations at once when invalidations occur.

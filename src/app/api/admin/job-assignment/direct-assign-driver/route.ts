@@ -93,6 +93,19 @@ export async function PATCH(request: NextRequest) {
 
         await pool.query("COMMIT");
 
+        // ⚡ Invalidate related caches
+        try {
+            const { invalidateBooking, cacheInvalidatePattern } = await import("@/lib/cache");
+            const { CachePatterns } = await import("@/lib/cache-keys");
+            
+            await invalidateBooking(bookingId, userId, driverId);
+            if (oldDriverId && oldDriverId !== driverId) {
+                await cacheInvalidatePattern(CachePatterns.driverJobsWildcard(oldDriverId));
+            }
+        } catch (err) {
+            console.error("Cache Invalidation Error:", err);
+        }
+
         // แจ้งคนขับใหม่ที่ได้รับมอบหมาย
         await pusher.trigger(`private-driver-${driverId}`, "booking.assigned", {
             booking_id: bookingId,

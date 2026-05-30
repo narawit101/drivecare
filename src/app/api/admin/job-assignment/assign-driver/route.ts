@@ -96,6 +96,14 @@ export async function PATCH(request: NextRequest) {
 
         await pool.query("COMMIT");
 
+        // ⚡ Invalidate related caches
+        try {
+            const { invalidateBooking } = await import("@/lib/cache");
+            await invalidateBooking(bookingId, userId, driverId);
+        } catch (err) {
+            console.error("Cache Invalidation Error:", err);
+        }
+
         await pusher.trigger("private-driver", "booking.assigned", {
             booking_id: bookingId,
             driver_id: driverId,

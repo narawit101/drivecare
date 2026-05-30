@@ -83,6 +83,27 @@ export async function PATCH(
         // COMMIT
         await client.query("COMMIT");
 
+        // ⚡ Invalidate related caches
+        try {
+            const { cacheInvalidate, cacheInvalidatePattern } = await import("@/lib/cache");
+            const { CacheKeys, CachePatterns } = await import("@/lib/cache-keys");
+            
+            const invalidatePromises: Promise<any>[] = [
+                cacheInvalidate(CacheKeys.userBookings(user_id)),
+                cacheInvalidatePattern(CachePatterns.bookingById(booking_id)),
+                cacheInvalidatePattern(CachePatterns.allBookingGlobal()),
+                cacheInvalidatePattern(CachePatterns.adminDashboardWildcard())
+            ];
+            
+            if (driver_id) {
+                invalidatePromises.push(cacheInvalidatePattern(CachePatterns.driverJobsWildcard(driver_id)));
+            }
+            
+            await Promise.all(invalidatePromises);
+        } catch (err) {
+            console.error("Cache Invalidation Error:", err);
+        }
+
         const findDriverID = await pool.query(
             `SELECT driver_id FROM bookings WHERE booking_id = $1`,
             [booking_id]

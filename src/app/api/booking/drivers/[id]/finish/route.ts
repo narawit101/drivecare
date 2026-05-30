@@ -28,7 +28,7 @@ export async function PATCH(
         WHERE booking_id = $1
             AND driver_id = $2
             AND status = 'paymented'
-        RETURNING booking_id, status
+        RETURNING booking_id, status, user_id
         `,
       [booking_id, driver_id]
     );
@@ -38,6 +38,16 @@ export async function PATCH(
         { message: "ไม่สามารถปิดงานได้" },
         { status: 400 }
       );
+    }
+
+    const user_id = updateResult.rows[0].user_id;
+
+    // ⚡ Invalidate related caches
+    try {
+      const { invalidateBooking } = await import("@/lib/cache");
+      await invalidateBooking(booking_id, user_id, driver_id);
+    } catch (err) {
+      console.error("Cache Invalidation Error:", err);
     }
 
     await pool.query(

@@ -21,49 +21,58 @@ export async function GET(req: Request) {
   }
 
   try {
-    const result = await pool.query(
-      `
-            SELECT 
-                b.booking_id,
-                b.booking_date,
-                b.start_time,
-                b.status,
-                b.create_at,
-                b.total_price,
-                b.total_hours,
-                b.payment_status,
-                b.driver_id,
+    const { cacheGet } = await import("@/lib/cache");
+    const { CacheKeys, TTL } = await import("@/lib/cache-keys");
 
-                u.user_id,
-                u.first_name,
-                u.last_name,
-                u.phone_number,
-                u.profile_img,
-
-                l.pickup_address,
-                l.pickup_lat,
-                l.pickup_lng,
-                l.dropoff_address,
-                l.dropoff_lat,
-                l.dropoff_lng,
-
-                hr.congenital_diseases, 
-                hr.allergies
-
-            FROM bookings b
-            JOIN users u ON b.user_id = u.user_id
-            LEFT JOIN locations l ON b.booking_id = l.booking_id
-            LEFT JOIN health_records hr ON b.user_id = hr.user_id
-            WHERE b.booking_id = $1
-            `,
-      [booking_id],
+    const job = await cacheGet(
+      CacheKeys.bookingDriverDetail(booking_id),
+      TTL.BOOKING_DETAIL,
+      async () => {
+        const result = await pool.query(
+          `
+                SELECT 
+                    b.booking_id,
+                    b.booking_date,
+                    b.start_time,
+                    b.status,
+                    b.create_at,
+                    b.total_price,
+                    b.total_hours,
+                    b.payment_status,
+                    b.driver_id,
+    
+                    u.user_id,
+                    u.first_name,
+                    u.last_name,
+                    u.phone_number,
+                    u.profile_img,
+    
+                    l.pickup_address,
+                    l.pickup_lat,
+                    l.pickup_lng,
+                    l.dropoff_address,
+                    l.dropoff_lat,
+                    l.dropoff_lng,
+    
+                    hr.congenital_diseases, 
+                    hr.allergies
+    
+                FROM bookings b
+                JOIN users u ON b.user_id = u.user_id
+                LEFT JOIN locations l ON b.booking_id = l.booking_id
+                LEFT JOIN health_records hr ON b.user_id = hr.user_id
+                WHERE b.booking_id = $1
+                `,
+          [booking_id],
+        );
+        return result.rows[0] || null;
+      }
     );
 
-    if (result.rows.length === 0) {
+    if (!job) {
       return NextResponse.json({ message: "not found" }, { status: 404 });
     }
 
-    const job = result.rows[0];
 
     // ✅ Access control:
     // - If this booking is already assigned to a driver, only that driver can view it.

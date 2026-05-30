@@ -97,6 +97,15 @@ export async function PATCH(
       ],
     );
 
+    // ⚡ Invalidate related caches
+    try {
+      const { invalidateBooking } = await import("@/lib/cache");
+      const user_id = bookingRes.rows[0]?.user_id;
+      await invalidateBooking(booking_id, user_id, driver_id);
+    } catch (err) {
+      console.error("Cache Invalidation Error:", err);
+    }
+
     // Realtime: แจ้ง admin ให้ timeline/job เปลี่ยนทันที (best-effort)
     try {
       await pusher.trigger("private-admin", "booking-updated", {

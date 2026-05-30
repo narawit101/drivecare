@@ -85,7 +85,7 @@ FOR UPDATE
         // 2️⃣ หา “งานที่ถึงคิวจริง”
         const nextJob = await pool.query(
             `
-      SELECT booking_id, start_time
+      SELECT booking_id, start_time, user_id
       FROM bookings
       WHERE driver_id = $1
         AND status = 'accepted'
@@ -113,6 +113,7 @@ FOR UPDATE
         }
 
         const startTime = nextJob.rows[0].start_time;
+        const user_id = nextJob.rows[0].user_id;
         if (startTime) {
             const nowTH = DateTime.now().setZone(TH_ZONE);
             const startTimeTH = parseDbDateTimeTH(startTime);
@@ -146,6 +147,14 @@ FOR UPDATE
         );
 
         await pool.query("COMMIT");
+
+        // ⚡ Invalidate related caches
+        try {
+            const { invalidateBooking } = await import("@/lib/cache");
+            await invalidateBooking(booking_id, user_id, driver_id);
+        } catch (err) {
+            console.error("Cache Invalidation Error:", err);
+        }
 
         return NextResponse.json({ message: "งานของคุณเข้าสู่ขั้นตอนกำลังดำเนินงาน" });
 

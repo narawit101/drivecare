@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { DateTime } from "luxon";
 import pool from "@/lib/db";
+import { cacheGet } from "@/lib/cache";
+import { CacheKeys, TTL } from "@/lib/cache-keys";
 
 const ZONE = "Asia/Bangkok";
 
@@ -49,111 +51,119 @@ export async function GET(request: NextRequest) {
     const endDate = toISODate(range.end);
 
     try {
-        const [usersRes, driversRes, dailyRes] = await Promise.all([
-            pool.query("SELECT COUNT(*)::int AS c FROM users"),
-            pool.query("SELECT COUNT(*)::int AS c FROM drivers"),
-            pool.query(
-                `
-WITH days AS (
-  SELECT generate_series($1::date, $2::date, interval '1 day')::date AS day
-),
-booking_stats AS (
-  SELECT
-    b.booking_date::date AS day,
-    COUNT(*)::int AS bookings_total,
-    COUNT(*) FILTER (WHERE b.status = 'cancelled')::int AS bookings_cancelled,
-    COUNT(*) FILTER (WHERE b.status = 'pending')::int AS bookings_pending
-  FROM bookings b
-  WHERE b.booking_date::date BETWEEN $1::date AND $2::date
-  GROUP BY 1
-),
-payment_stats AS (
-  SELECT
-    b.payment_at::date AS day,
-    COUNT(*) FILTER (WHERE b.payment_status IN ('verified','rejected'))::int AS slips_checked,
-    COUNT(*) FILTER (WHERE b.payment_status = 'waiting_verify')::int AS slips_unchecked,
-    COALESCE(
-      SUM(
-        NULLIF(regexp_replace(b.total_price, '[^0-9.]', '', 'g'), '')::numeric
-      ) FILTER (WHERE b.payment_status = 'verified'),
-      0
-    )::float AS revenue_verified
-  FROM bookings b
-  WHERE b.payment_at IS NOT NULL
-    AND b.payment_at::date BETWEEN $1::date AND $2::date
-  GROUP BY 1
-),
-report_stats AS (
-  SELECT
-    r.create_at::date AS day,
-    COUNT(*) FILTER (WHERE r.is_replied = true)::int AS reports_answered,
-    COUNT(*) FILTER (WHERE r.is_replied = false)::int AS reports_unanswered
-  FROM reports r
-  WHERE r.create_at::date BETWEEN $1::date AND $2::date
-  GROUP BY 1
-)
-SELECT
-  d.day::text AS date,
-  COALESCE(bs.bookings_total, 0)::int AS bookings_total,
-  COALESCE(bs.bookings_cancelled, 0)::int AS bookings_cancelled,
-  COALESCE(bs.bookings_pending, 0)::int AS bookings_pending,
+        const cachedDashboard = await cacheGet(
+            CacheKeys.adminDashboard(startDate, endDate),
+            TTL.ADMIN_DASHBOARD,
+            async () => {
+                const [usersRes, driversRes, dailyRes] = await Promise.all([
+                    pool.query("SELECT COUNT(*)::int AS c FROM users"),
+                    pool.query("SELECT COUNT(*)::int AS c FROM drivers"),
+                    pool.query(
+                        `
+        WITH days AS (
+          SELECT generate_series($1::date, $2::date, interval '1 day')::date AS day
+        ),
+        booking_stats AS (
+          SELECT
+            b.booking_date::date AS day,
+            COUNT(*)::int AS bookings_total,
+            COUNT(*) FILTER (WHERE b.status = 'cancelled')::int AS bookings_cancelled,
+            COUNT(*) FILTER (WHERE b.status = 'pending')::int AS bookings_pending
+          FROM bookings b
+          WHERE b.booking_date::date BETWEEN $1::date AND $2::date
+          GROUP BY 1
+        ),
+        payment_stats AS (
+          SELECT
+            b.payment_at::date AS day,
+            COUNT(*) FILTER (WHERE b.payment_status IN ('verified','rejected'))::int AS slips_checked,
+            COUNT(*) FILTER (WHERE b.payment_status = 'waiting_verify')::int AS slips_unchecked,
+            COALESCE(
+              SUM(
+                NULLIF(regexp_replace(b.total_price, '[^0-9.]', '', 'g'), '')::numeric
+              ) FILTER (WHERE b.payment_status = 'verified'),
+              0
+            )::float AS revenue_verified
+          FROM bookings b
+          WHERE b.payment_at IS NOT NULL
+            AND b.payment_at::date BETWEEN $1::date AND $2::date
+          GROUP BY 1
+        ),
+        report_stats AS (
+          SELECT
+            r.create_at::date AS day,
+            COUNT(*) FILTER (WHERE r.is_replied = true)::int AS reports_answered,
+            COUNT(*) FILTER (WHERE r.is_replied = false)::int AS reports_unanswered
+          FROM reports r
+          WHERE r.create_at::date BETWEEN $1::date AND $2::date
+          GROUP BY 1
+        )
+        SELECT
+          d.day::text AS date,
+          COALESCE(bs.bookings_total, 0)::int AS bookings_total,
+          COALESCE(bs.bookings_cancelled, 0)::int AS bookings_cancelled,
+          COALESCE(bs.bookings_pending, 0)::int AS bookings_pending,
+        
+          COALESCE(ps.slips_checked, 0)::int AS slips_checked,
+          COALESCE(ps.slips_unchecked, 0)::int AS slips_unchecked,
+          COALESCE(ps.revenue_verified, 0)::float AS revenue_verified,
+        
+          COALESCE(rs.reports_answered, 0)::int AS reports_answered,
+          COALESCE(rs.reports_unanswered, 0)::int AS reports_unanswered
+        FROM days d
+        LEFT JOIN booking_stats bs ON bs.day = d.day
+        LEFT JOIN payment_stats ps ON ps.day = d.day
+        LEFT JOIN report_stats rs ON rs.day = d.day
+        ORDER BY d.day ASC
+                `,
+                        [startDate, endDate]
+                    ),
+                ]);
 
-  COALESCE(ps.slips_checked, 0)::int AS slips_checked,
-  COALESCE(ps.slips_unchecked, 0)::int AS slips_unchecked,
-  COALESCE(ps.revenue_verified, 0)::float AS revenue_verified,
+                const daily = (dailyRes.rows ?? []).map((r) => ({
+                    date: String(r.date),
+                    bookings_total: Number(r.bookings_total ?? 0),
+                    bookings_cancelled: Number(r.bookings_cancelled ?? 0),
+                    bookings_pending: Number(r.bookings_pending ?? 0),
+                    slips_checked: Number(r.slips_checked ?? 0),
+                    slips_unchecked: Number(r.slips_unchecked ?? 0),
+                    revenue_verified: Number(r.revenue_verified ?? 0),
+                    reports_answered: Number(r.reports_answered ?? 0),
+                    reports_unanswered: Number(r.reports_unanswered ?? 0),
+                }));
 
-  COALESCE(rs.reports_answered, 0)::int AS reports_answered,
-  COALESCE(rs.reports_unanswered, 0)::int AS reports_unanswered
-FROM days d
-LEFT JOIN booking_stats bs ON bs.day = d.day
-LEFT JOIN payment_stats ps ON ps.day = d.day
-LEFT JOIN report_stats rs ON rs.day = d.day
-ORDER BY d.day ASC
-        `,
-                [startDate, endDate]
-            ),
-        ]);
+                const totals = daily.reduce(
+                    (acc, row) => {
+                        acc.revenue_verified += row.revenue_verified;
+                        acc.bookings_total += row.bookings_total;
+                        acc.bookings_cancelled += row.bookings_cancelled;
+                        acc.bookings_pending += row.bookings_pending;
+                        acc.slips_checked += row.slips_checked;
+                        acc.slips_unchecked += row.slips_unchecked;
+                        acc.reports_answered += row.reports_answered;
+                        acc.reports_unanswered += row.reports_unanswered;
+                        return acc;
+                    },
+                    {
+                        revenue_verified: 0,
+                        users_total: Number(usersRes.rows?.[0]?.c ?? 0),
+                        drivers_total: Number(driversRes.rows?.[0]?.c ?? 0),
+                        bookings_total: 0,
+                        bookings_cancelled: 0,
+                        bookings_pending: 0,
+                        slips_checked: 0,
+                        slips_unchecked: 0,
+                        reports_total: 0,
+                        reports_answered: 0,
+                        reports_unanswered: 0,
+                    }
+                );
 
-        const daily = (dailyRes.rows ?? []).map((r) => ({
-            date: String(r.date),
-            bookings_total: Number(r.bookings_total ?? 0),
-            bookings_cancelled: Number(r.bookings_cancelled ?? 0),
-            bookings_pending: Number(r.bookings_pending ?? 0),
-            slips_checked: Number(r.slips_checked ?? 0),
-            slips_unchecked: Number(r.slips_unchecked ?? 0),
-            revenue_verified: Number(r.revenue_verified ?? 0),
-            reports_answered: Number(r.reports_answered ?? 0),
-            reports_unanswered: Number(r.reports_unanswered ?? 0),
-        }));
+                totals.reports_total = totals.reports_answered + totals.reports_unanswered;
 
-        const totals = daily.reduce(
-            (acc, row) => {
-                acc.revenue_verified += row.revenue_verified;
-                acc.bookings_total += row.bookings_total;
-                acc.bookings_cancelled += row.bookings_cancelled;
-                acc.bookings_pending += row.bookings_pending;
-                acc.slips_checked += row.slips_checked;
-                acc.slips_unchecked += row.slips_unchecked;
-                acc.reports_answered += row.reports_answered;
-                acc.reports_unanswered += row.reports_unanswered;
-                return acc;
-            },
-            {
-                revenue_verified: 0,
-                users_total: Number(usersRes.rows?.[0]?.c ?? 0),
-                drivers_total: Number(driversRes.rows?.[0]?.c ?? 0),
-                bookings_total: 0,
-                bookings_cancelled: 0,
-                bookings_pending: 0,
-                slips_checked: 0,
-                slips_unchecked: 0,
-                reports_total: 0,
-                reports_answered: 0,
-                reports_unanswered: 0,
+                return { totals, daily };
             }
         );
-
-        totals.reports_total = totals.reports_answered + totals.reports_unanswered;
 
         return NextResponse.json(
             {
@@ -162,8 +172,8 @@ ORDER BY d.day ASC
                     end: endDate,
                     month: range.month,
                 },
-                totals,
-                daily,
+                totals: cachedDashboard.totals,
+                daily: cachedDashboard.daily,
             },
             { status: 200 }
         );

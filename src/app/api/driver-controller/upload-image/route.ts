@@ -1,6 +1,8 @@
 import pool from "@/lib/db";
 import { NextResponse, NextRequest } from "next/server";
 import { deleteCloudinaryByUrl, uploadImageFile } from "@/lib/cloudinary";
+import { cacheInvalidate } from "@/lib/cache";
+import { CacheKeys } from "@/lib/cache-keys";
 
 export const runtime = "nodejs";
 
@@ -53,6 +55,13 @@ export async function PUT(request: NextRequest) {
         const query = `UPDATE drivers SET ${fieldName} = $1 WHERE driver_id = $2`;
         await pool.query(query, [uploaded.secure_url, driver_id]);
 
+        // ล้าง cache ข้อมูลคนขับ
+        await cacheInvalidate(
+            CacheKeys.driverProfile(driver_id),
+            CacheKeys.driverAdminDetail(driver_id),
+            CacheKeys.allDrivers()
+        );
+
         return NextResponse.json({
             message: `อัปเดต ${fieldName} สำเร็จ`,
             url: uploaded.secure_url
@@ -62,4 +71,4 @@ export async function PUT(request: NextRequest) {
         console.error("Upload & Delete Error:", { code: error?.code, message: error?.message });
         return NextResponse.json({ message: "Upload Error", error: error.message }, { status: 500 });
     }
-}
+}

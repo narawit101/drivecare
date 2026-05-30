@@ -1,5 +1,7 @@
 import pool from "@/lib/db";
 import { NextResponse, NextRequest } from "next/server";
+import { cacheInvalidate } from "@/lib/cache";
+import { CacheKeys } from "@/lib/cache-keys";
 
 export async function PUT(request: NextRequest) {
     try {
@@ -28,10 +30,16 @@ export async function PUT(request: NextRequest) {
             return NextResponse.json({ message: "ไม่พบข้อมูลผู้ใช้" }, { status: 404 });
         }
 
+        // ล้าง cache ข้อมูลโปรไฟล์ผู้ใช้และข้อมูลหลังบ้านแอดมิน
+        await cacheInvalidate(
+            CacheKeys.userProfile(user_id),
+            CacheKeys.userAdminDetail(user_id)
+        );
+
         return NextResponse.json({ message: "อัปเดตข้อมูลสำเร็จ", data: result.rows[0] });
 
     } catch (error) {
         console.error("Update Error:", error);
         return NextResponse.json({ message: "เกิดข้อผิดพลาดภายในระบบ" }, { status: 500 });
     }
-}
+}

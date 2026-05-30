@@ -145,6 +145,14 @@ export async function PATCH(
 
                     const booking = bookingRowRes.rows[0];
 
+                    // ⚡ Invalidate related caches
+                    try {
+                        const { invalidateBooking } = await import("@/lib/cache");
+                        await invalidateBooking(booking_id, booking?.user_id, driver_id);
+                    } catch (err) {
+                        console.error("Cache Invalidation Error:", err);
+                    }
+
                     if (booking) {
                         await pusher.trigger("private-driver", "booking.returned", { booking });
                         await pusher.trigger("private-admin", "booking.returned", {

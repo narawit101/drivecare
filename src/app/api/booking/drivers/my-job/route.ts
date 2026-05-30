@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import pool from "@/lib/db";
+import { cacheGet } from "@/lib/cache";
+import { CacheKeys, TTL } from "@/lib/cache-keys";
 
 export async function GET(request: NextRequest) {
     try {
@@ -58,50 +60,57 @@ export async function GET(request: NextRequest) {
             );
         }
 
-        // 📦 query งานของ driver
-        const result = await pool.query(
-            `
-      SELECT 
-        b.booking_id,
-        b.booking_date,
-        b.start_time,
-        b.status,
-        b.create_at,
-        b.payment_status,
-
-
-        u.user_id,
-        u.first_name,
-        u.last_name,
-        u.phone_number,
-        u.profile_img,
-
-        l.pickup_address,
-        l.pickup_lat,
-        l.pickup_lng,
-        l.dropoff_address,
-        l.dropoff_lat,
-        l.dropoff_lng,
-
-        hr.congenital_diseases, 
-        hr.allergies
-
-
-      FROM bookings b
-      JOIN users u ON b.user_id = u.user_id
-      LEFT JOIN locations l ON b.booking_id = l.booking_id
-      LEFT JOIN health_records hr ON b.user_id = hr.user_id
-      WHERE b.driver_id = $1
-        AND b.status = ANY($2)
-            ORDER BY b.start_time ASC
-      `,
-            [driver_id, statuses]
+        // 📦 query งานของ driver ด้วย Cache
+        const jobs = await cacheGet(
+            CacheKeys.driverJobs(driver_id, tab),
+            TTL.BOOKING_LIST_DRIVER,
+            async () => {
+                const result = await pool.query(
+                    `
+              SELECT 
+                b.booking_id,
+                b.booking_date,
+                b.start_time,
+                b.status,
+                b.create_at,
+                b.payment_status,
+        
+        
+                u.user_id,
+                u.first_name,
+                u.last_name,
+                u.phone_number,
+                u.profile_img,
+        
+                l.pickup_address,
+                l.pickup_lat,
+                l.pickup_lng,
+                l.dropoff_address,
+                l.dropoff_lat,
+                l.dropoff_lng,
+        
+                hr.congenital_diseases, 
+                hr.allergies
+        
+        
+              FROM bookings b
+              JOIN users u ON b.user_id = u.user_id
+              LEFT JOIN locations l ON b.booking_id = l.booking_id
+              LEFT JOIN health_records hr ON b.user_id = hr.user_id
+              WHERE b.driver_id = $1
+                AND b.status = ANY($2)
+                    ORDER BY b.start_time ASC
+              `,
+                    [driver_id, statuses]
+                );
+                return result.rows;
+            }
         );
 
         return NextResponse.json(
             {
-                count: result.rows.length,
-                jobs: result.rows,
+                count: jobs.length,
+                jobs: jobs,
             },
             { status: 200 }
         );
@@ -113,3 +122,4 @@ export async function GET(request: NextRequest) {
         );
     }
 }
+

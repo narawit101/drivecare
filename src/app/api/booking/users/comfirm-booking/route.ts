@@ -116,6 +116,16 @@ export async function POST(request: NextRequest) {
 
     await pool.query("COMMIT");
 
+    // ⚡ Invalidate related caches
+    const { cacheInvalidate, cacheInvalidatePattern } = await import("@/lib/cache");
+    const { CacheKeys, CachePatterns } = await import("@/lib/cache-keys");
+    
+    await Promise.all([
+      cacheInvalidate(CacheKeys.userBookings(user_id)),
+      cacheInvalidatePattern(CachePatterns.allBookingGlobal()),
+      cacheInvalidatePattern(CachePatterns.adminDashboardWildcard())
+    ]).catch(err => console.error("Cache Invalidation Error:", err));
+
     // 4️⃣ ดึง booking เต็ม (ไว้ส่ง realtime)
     const bookingData = await pool.query(
       `
@@ -125,12 +135,12 @@ export async function POST(request: NextRequest) {
         b.start_time,
         b.status,
         b.create_at,
-
+ 
         u.first_name,
         u.last_name,
         u.phone_number,
         u.profile_img,
-
+ 
         l.pickup_address,
         l.pickup_lat,
         l.pickup_lng,
@@ -191,3 +201,4 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ message: error }, { status: 500 });
   }
 }
+

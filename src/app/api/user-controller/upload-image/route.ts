@@ -1,6 +1,9 @@
 import pool from "@/lib/db";
 import { NextResponse, NextRequest } from "next/server";
 import { deleteCloudinaryByUrl, uploadImageFile } from "@/lib/cloudinary";
+import { cacheInvalidate } from "@/lib/cache";
+import { CacheKeys } from "@/lib/cache-keys";
+
 
 export const runtime = "nodejs";
 
@@ -49,6 +52,12 @@ export async function PUT(request: NextRequest) {
         const query = `UPDATE users SET ${fieldName} = $1 WHERE user_id = $2`;
         await pool.query(query, [uploaded.secure_url, user_id]);
 
+        // ล้าง cache
+        await cacheInvalidate(
+            CacheKeys.userProfile(user_id),
+            CacheKeys.userAdminDetail(user_id)
+        );
+
         return NextResponse.json({
             message: `อัปเดต ${fieldName} สำเร็จ`,
             url: uploaded.secure_url
@@ -58,4 +67,4 @@ export async function PUT(request: NextRequest) {
         console.error("Upload & Delete Error:", { code: error?.code, message: error?.message });
         return NextResponse.json({ message: "Upload Error", error: error.message }, { status: 500 });
     }
-}
+}

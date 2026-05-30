@@ -82,6 +82,14 @@ export async function PATCH(
 
     await pool.query("COMMIT");
 
+    // ⚡ Invalidate related caches
+    try {
+      const { invalidateBooking } = await import("@/lib/cache");
+      await invalidateBooking(booking_id, booking.user_id, booking.driver_id);
+    } catch (err) {
+      console.error("Cache Invalidation Error:", err);
+    }
+
     /* ---------------- 🔔 REALTIME ---------------- */
     const payload = {
       type:

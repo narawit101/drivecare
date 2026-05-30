@@ -55,6 +55,15 @@ export async function PATCH(request: NextRequest) {
             [status, driver_id]
         )
 
+        // ⚡ Invalidate related caches
+        try {
+            const { cacheInvalidate } = await import("@/lib/cache");
+            const { CacheKeys } = await import("@/lib/cache-keys");
+            await cacheInvalidate(CacheKeys.allDrivers(), CacheKeys.driverProfile(driver_id!));
+        } catch (err) {
+            console.error("Cache Invalidation Error:", err);
+        }
+
         return NextResponse.json({ message: "เปลี่ยนสถานะเรียบร้อย" })
 
     } catch (err) {

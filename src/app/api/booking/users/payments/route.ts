@@ -203,6 +203,14 @@ export async function PATCH(request: NextRequest) {
 
     await client.query("COMMIT");
 
+    // ⚡ Invalidate related caches
+    try {
+      const { invalidateBooking } = await import("@/lib/cache");
+      await invalidateBooking(booking_id!, user_id, driverId);
+    } catch (err) {
+      console.error("Cache Invalidation Error:", err);
+    }
+
     if (oldSlipToDelete && oldSlipToDelete !== slip_url) {
       await safeDeleteSlip(oldSlipToDelete);
     }

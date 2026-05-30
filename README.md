@@ -40,7 +40,7 @@ You can reuse the following points in a resume or portfolio:
 ## Tech Stack
 
 - Frontend: Next.js 16, React 19, TypeScript, Tailwind CSS 4
-- Backend: Next.js App Router Route Handlers, PostgreSQL, JWT-based auth
+- Backend: Next.js App Router Route Handlers, PostgreSQL, Redis (Caching), JWT-based auth
 - Realtime: Pusher
 - Mapping: Longdo Map
 - Messaging: LINE LIFF, LINE Messaging API
@@ -83,7 +83,7 @@ src/
   app/           Next.js pages, layouts, and API routes
   components/    Shared UI plus user, driver, and admin components
   context/       Authentication and role-based client state
-  lib/           Database, LINE, Pusher, and Cloudinary integrations
+  lib/           Database, Redis caching, LINE, Pusher, and Cloudinary integrations
   services/      Booking, map, pricing, and notification helpers
   types/         Shared TypeScript models
   utils/         Formatting and utility functions
@@ -95,6 +95,7 @@ src/
 
 - Node.js 20+
 - PostgreSQL database
+- Redis server (local docker or cloud Upstash)
 - LINE LIFF credentials
 - Pusher account
 - Cloudinary account
@@ -130,11 +131,18 @@ PUSHER_SECRET=
 PUSHER_CLUSTER=
 NEXT_PUBLIC_PUSHER_KEY=
 NEXT_PUBLIC_LONGDO_MAP_KEY=
+
+# Redis Configuration (Localhost / Upstash)
+REDIS_URL=redis://localhost:6379
 ```
 
 ### Run Locally
 
 ```bash
+# Start Redis (using Docker)
+docker run -d --name drivecare-redis -p 6379:6379 redis:7-alpine
+
+# Run the Next.js development server
 npm run dev
 ```
 

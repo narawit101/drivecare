@@ -175,6 +175,7 @@ export async function PATCH(
     const info = await pool.query(
       `
   SELECT 
+    b.user_id,
     u.line_id,
     u.first_name AS user_first_name,
     d.first_name AS driver_first_name,
@@ -192,6 +193,14 @@ export async function PATCH(
     );
 
     const data = info.rows[0];
+
+    // ⚡ Invalidate related caches
+    try {
+      const { invalidateBooking } = await import("@/lib/cache");
+      await invalidateBooking(booking_id, data?.user_id, driver_id);
+    } catch (err) {
+      console.error("Cache Invalidation Error:", err);
+    }
 
     // 1. ตรวจสอบว่ามีข้อมูล data และ line_id หรือไม่
     if (data && data.line_id && data.line_id.trim() !== "") {

@@ -209,6 +209,14 @@ export async function PATCH(
     await pool.query("COMMIT");
     const bookingUserId = result.rows[0]?.user_id;
 
+    // ⚡ Invalidate related caches
+    try {
+      const { invalidateBooking } = await import("@/lib/cache");
+      await invalidateBooking(booking_id, bookingUserId, driver_id);
+    } catch (err) {
+      console.error("Cache Invalidation Error:", err);
+    }
+
     // Realtime for admin (best-effort)
     try {
       await pusher.trigger("private-admin", "booking-updated", {
