@@ -1,6 +1,7 @@
 import pool from "@/lib/db";
 import { NextResponse, NextRequest } from "next/server";
-const jwt = require("jsonwebtoken");
+import jwt from "jsonwebtoken";
+
 
 export async function POST(request: NextRequest) {
   try {

@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useUser } from "@/context/UserContext";
 import { Icon } from "@iconify/react";
 
-export default function page() {
+export default function Page() {
   const { token, isLoad, userData, logout, setToken } = useUser();
   const router = useRouter();
   const [switching, setSwitching] = useState(false);

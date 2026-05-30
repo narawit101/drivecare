@@ -33,7 +33,10 @@ export default function ExpandableText({
     }, [clampLines]);
 
     useEffect(() => {
-        setMounted(true);
+        const handle = setTimeout(() => {
+            setMounted(true);
+        }, 0);
+        return () => clearTimeout(handle);
     }, []);
 
     useEffect(() => {

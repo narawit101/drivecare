@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import pool from "@/lib/db";
 import { pusher } from "@/lib/pusher";
 import { sendLineMessage } from "@/lib/line";
-import { DateTime } from "luxon";
+
 import { parseDbDateTimeTH } from "@/utils/db-datetime";
 
 export async function PATCH(request: NextRequest) {
@@ -34,7 +34,7 @@ export async function PATCH(request: NextRequest) {
         await pool.query("BEGIN");
 
         const check = await pool.query(
-                        `SELECT booking_id, user_id
+            `SELECT booking_id, user_id
        FROM bookings
        WHERE booking_id = $1
          AND status = 'pending'

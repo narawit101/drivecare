@@ -79,7 +79,10 @@ export default function AdminPageHeader<T extends string>({
     }, [activeTab, tabs]);
 
     useEffect(() => {
-        setMounted(true);
+        const handle = setTimeout(() => {
+            setMounted(true);
+        }, 0);
+        return () => clearTimeout(handle);
     }, []);
 
     useEffect(() => {

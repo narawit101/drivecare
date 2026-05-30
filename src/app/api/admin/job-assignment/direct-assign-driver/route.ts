@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import pool from "@/lib/db";
 import { pusher } from "@/lib/pusher";
 import { sendLineMessage } from "@/lib/line";
-import { DateTime } from "luxon";
+
 import { parseDbDateTimeTH } from "@/utils/db-datetime";
 
 export async function PATCH(request: NextRequest) {
@@ -97,7 +97,7 @@ export async function PATCH(request: NextRequest) {
         try {
             const { invalidateBooking, cacheInvalidatePattern } = await import("@/lib/cache");
             const { CachePatterns } = await import("@/lib/cache-keys");
-            
+
             await invalidateBooking(bookingId, userId, driverId);
             if (oldDriverId && oldDriverId !== driverId) {
                 await cacheInvalidatePattern(CachePatterns.driverJobsWildcard(oldDriverId));

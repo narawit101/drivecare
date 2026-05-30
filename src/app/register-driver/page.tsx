@@ -416,6 +416,7 @@ export default function RegisterDriver() {
                                                 <div className="relative w-40 h-40 lg:w-50 lg:h-50 mb-2 shadow-[0_0_20px_rgba(120,198,160,0.3)] rounded-full overflow-hidden border-2 border-[#78C6A0] mx-auto">
                                                     <img
                                                         src={previews.profile_img}
+                                                        alt="รูปโปรไฟล์"
                                                         className="object-cover w-full h-full"
                                                     />
                                                 </div>
@@ -525,6 +526,7 @@ export default function RegisterDriver() {
                                                 <div className="relative w-auto lg:h-96 mb-2 shadow-[0_0_20px_rgba(120,198,160,0.3)] rounded-xl overflow-hidden border-2 border-[#78C6A0] mx-auto">
                                                     <img
                                                         src={previews.car_img}
+                                                        alt="รูปรถ"
                                                         className="object-contain w-full h-full"
                                                     />
                                                 </div>
@@ -614,6 +616,7 @@ export default function RegisterDriver() {
                                         <div className="relative w-40 h-40 lg:w-50 lg:h-50 mb-2 shadow-[0_0_20px_rgba(120,198,160,0.3)] rounded-full overflow-hidden border-2 border-[#78C6A0] mx-auto">
                                             <img
                                                 src={previews.profile_img}
+                                                alt="รูปโปรไฟล์"
                                                 className="object-cover w-full h-full"
                                             />
                                         </div>
@@ -627,6 +630,7 @@ export default function RegisterDriver() {
                                             <div className="relative lg:w-76 w-auto lg:h-36 mb-2 shadow-[0_0_20px_rgba(120,198,160,0.3)] rounded-xl overflow-hidden border-2 border-[#78C6A0] mx-auto">
                                                 <img
                                                     src={previews.car_img}
+                                                    alt="รูปรถ"
                                                     className="object-contain w-full h-full"
                                                 />
                                             </div>

@@ -1,7 +1,7 @@
 import { NextResponse, NextRequest } from "next/server";
 import pool from "@/lib/db";
 import { uploadImageFile } from "@/lib/cloudinary";
-const jwt = require("jsonwebtoken");
+import jwt from "jsonwebtoken";
 import { sendLineMessage } from "@/lib/line";
 
 export const runtime = "nodejs";

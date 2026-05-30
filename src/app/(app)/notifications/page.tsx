@@ -2,8 +2,8 @@
 
 import { useNotificationStore } from "@/store/notification.state";
 import { useEffect, useState } from "react";
-import { useRouter } from 'next/navigation';
-import { useUser } from '@/context/UserContext';
+import { useRouter } from "next/navigation";
+import { useUser } from "@/context/UserContext";
 import { Icon } from "@iconify/react";
 
 type FilterType = "ทั้งหมด" | "อ่านแล้ว" | "ยังไม่ได้อ่าน";
@@ -21,13 +21,13 @@ export default function Notification() {
     }
   }, [token, isLoad, userData]);
 
-
   useEffect(() => {
     setNotifications([
       {
         id: "1",
         title: "ระบบได้รับงานของคุณแล้ว",
-        message: "งานจัดส่งสินค้าจาก ขอนแก่น ไปยัง ร้อยเอ็ด ได้รับการยืนยันแล้ว",
+        message:
+          "งานจัดส่งสินค้าจาก ขอนแก่น ไปยัง ร้อยเอ็ด ได้รับการยืนยันแล้ว",
         createdAt: "2025-01-01 10:30",
         read: false,
       },
@@ -48,7 +48,7 @@ export default function Notification() {
     ]);
   }, [setNotifications]);
 
-  const filteredNotifications = notifications.filter(n => {
+  const filteredNotifications = notifications.filter((n) => {
     if (activeFilter === "อ่านแล้ว") return n.read === true;
     if (activeFilter === "ยังไม่ได้อ่าน") return n.read === false;
     return true;
@@ -56,7 +56,6 @@ export default function Notification() {
 
   return (
     <div className="min-h-screen bg-white">
-
       <header className="border-b border-neutral-200">
         <div className="title w-full max-w-5xl mx-auto px-8 py-4">
           <h2 className="text-2xl text-gray-800 font-semibold">การแจ้งเตือน</h2>
@@ -65,18 +64,21 @@ export default function Notification() {
 
       <main className="max-w-5xl mx-auto px-6 py-8">
         <div className="flex gap-2 mb-8 overflow-x-auto pb-2 scrollbar-hide">
-          {(["ทั้งหมด", "อ่านแล้ว", "ยังไม่ได้อ่าน"] as FilterType[]).map((filter) => (
-            <button
-              key={filter}
-              onClick={() => setActiveFilter(filter)}
-              className={`px-6 py-2 rounded-md text-sm font-semibold transition-all duration-200 whitespace-nowrap cursor-pointer ${activeFilter === filter
-                ? "bg-[#70C5BE] text-white shadow-sm"
-                : "bg-slate-50 text-slate-400 hover:bg-slate-100"
+          {(["ทั้งหมด", "อ่านแล้ว", "ยังไม่ได้อ่าน"] as FilterType[]).map(
+            (filter) => (
+              <button
+                key={filter}
+                onClick={() => setActiveFilter(filter)}
+                className={`px-6 py-2 rounded-md text-sm font-semibold transition-all duration-200 whitespace-nowrap cursor-pointer ${
+                  activeFilter === filter
+                    ? "bg-[#70C5BE] text-white shadow-sm"
+                    : "bg-slate-50 text-slate-400 hover:bg-slate-100"
                 }`}
-            >
-              {filter}
-            </button>
-          ))}
+              >
+                {filter}
+              </button>
+            ),
+          )}
         </div>
 
         <div className="space-y-1">
@@ -109,7 +111,11 @@ export default function Notification() {
             ))
           ) : (
             <div className="py-20 text-center flex flex-col items-center gap-4">
-              <Icon icon="solar:bell-off-linear" width="64" className="text-slate-200" />
+              <Icon
+                icon="solar:bell-off-linear"
+                width="64"
+                className="text-slate-200"
+              />
               <p className="text-slate-400 font-medium">ไม่พบรายการแจ้งเตือน</p>
             </div>
           )}

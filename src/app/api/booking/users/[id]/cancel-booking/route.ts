@@ -2,8 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import pool from "@/lib/db";
 import { pusher } from "@/lib/pusher";
 import { sendLineMessage } from "@/lib/line";
-import { DateTime } from "luxon";
-import { parseDbDateTimeTH, TH_ZONE } from "@/utils/db-datetime";
+
 
 export async function PATCH(
     req: Request,
@@ -87,18 +86,18 @@ export async function PATCH(
         try {
             const { cacheInvalidate, cacheInvalidatePattern } = await import("@/lib/cache");
             const { CacheKeys, CachePatterns } = await import("@/lib/cache-keys");
-            
+
             const invalidatePromises: Promise<any>[] = [
                 cacheInvalidate(CacheKeys.userBookings(user_id)),
                 cacheInvalidatePattern(CachePatterns.bookingById(booking_id)),
                 cacheInvalidatePattern(CachePatterns.allBookingGlobal()),
                 cacheInvalidatePattern(CachePatterns.adminDashboardWildcard())
             ];
-            
+
             if (driver_id) {
                 invalidatePromises.push(cacheInvalidatePattern(CachePatterns.driverJobsWildcard(driver_id)));
             }
-            
+
             await Promise.all(invalidatePromises);
         } catch (err) {
             console.error("Cache Invalidation Error:", err);

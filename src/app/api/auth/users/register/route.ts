@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import pool from "@/lib/db";
-const jwt = require("jsonwebtoken")
+import jwt from "jsonwebtoken";
 import { sendLineMessage } from "@/lib/line";
+
 
 export async function GET() {
   try {
@@ -76,7 +77,7 @@ export async function POST(request: Request) {
     const token = jwt.sign({
       user_id: val.user_id,
       role: val.role
-    }, process.env.JWT_SECRET,
+    }, process.env.JWT_SECRET as string,
       {
         expiresIn: "7d"
       })

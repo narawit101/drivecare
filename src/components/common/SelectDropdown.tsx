@@ -49,8 +49,13 @@ export default function SelectDropdown<T extends string>({
 
     useEffect(() => {
         const idx = options.findIndex((o) => o.value === value);
-        if (idx >= 0) setActiveIndex(idx);
-    }, [options, value]);
+        if (idx >= 0 && idx !== activeIndex) {
+            const handle = setTimeout(() => {
+                setActiveIndex(idx);
+            }, 0);
+            return () => clearTimeout(handle);
+        }
+    }, [options, value, activeIndex]);
 
     useEffect(() => {
         if (!open) return;
