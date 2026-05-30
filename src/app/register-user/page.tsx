@@ -40,19 +40,30 @@ export default function RegisterUser() {
         if (!isLoad) {
             return
         }
-        if (userData && token) {
+        if (userData && token && userData.role === "user") {
             router.replace("/")
         }
     }, [isLoad, userData, token]);
 
     useEffect(() => {
         const temp = sessionStorage.getItem("lineProfile");
-        if (!temp) {
+        if (userData && token && userData.role === "user") {
+            router.replace("/");
+            return;
+        }
+        if (!temp && userData) {
+            const autoLineProfile = {
+                line_id: userData.line_id,
+                name: userData.name,
+                image: userData.profile_img,
+            };
+            sessionStorage.setItem("lineProfile", JSON.stringify(autoLineProfile));
+        } else if (!temp && !userData) {
             toast.error("กรุณาล็อกอินก่อนลงทะเบียน");
             router.push("/login");
             return;
         }
-    }, []);
+    }, [userData, token]);
 
     const handleChange = (e: React.ChangeEvent<AuthFormElement>) => {
         const { name, value } = e.target;

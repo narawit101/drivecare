@@ -18,6 +18,8 @@ export default function Login() {
     const LINE_LIFF_ID = process.env.NEXT_PUBLIC_LINE_LIFF_ID;
     const API_URL = process.env.NEXT_PUBLIC_API;
     const [showModal, setShowModal] = useState(false);
+    const [showRoleSelectionModal, setShowRoleSelectionModal] = useState(false);
+    const [tempLineId, setTempLineId] = useState<string | null>(null);
 
     const getHomePathByRole = (role?: string) => {
         if (role === "driver") return "/driver-dashboard";
@@ -35,8 +37,8 @@ export default function Login() {
             try {
                 await liff.init({ liffId: LINE_LIFF_ID });
 
-                //  ถ้า login แล้ว → login ต่อทันที
-                if (liff.isLoggedIn() && !token) {
+                // ถ้าล็อกอินใน LINE LIFF แล้ว และยังไม่มี token ทั้งใน state และ localStorage ค่อยเข้าสู่ระบบอัตโนมัติ
+                if (liff.isLoggedIn() && !token && !localStorage.getItem("token")) {
                     handleLogin();
                 }
             } catch (err) {
@@ -55,7 +57,7 @@ export default function Login() {
         }
     }, [isLoad, token, userData, router])
 
-    const handleLogin = async () => {
+    const handleLogin = async (selectedRole?: "user" | "driver") => {
         setLoading(true);
         try {
             if (!liff.isLoggedIn()) {
@@ -69,10 +71,16 @@ export default function Login() {
             const res = await fetch(`${API_URL}/auth/users/login`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ line_id: profile.userId }),
+                body: JSON.stringify({ line_id: profile.userId, role: selectedRole }),
             });
 
             const data = await res.json();
+
+            if (data.status === 150) {
+                setTempLineId(profile.userId);
+                setShowRoleSelectionModal(true);
+                return;
+            }
 
             if (data.status === 100) {
                 const lineProfile: LineProfileSession = {
@@ -206,6 +214,76 @@ export default function Login() {
                                 className="text-sm text-gray-500 hover:underline"
                             >
                                 ยกเลิก
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+            {showRoleSelectionModal && (
+                <div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center z-50 transition-opacity duration-300">
+                    <div className="w-[94%] max-w-lg rounded-3xl border border-white/80 bg-white/95 p-6 sm:p-8 shadow-2xl animate-scale-in relative overflow-hidden">
+                        
+                        {/* Decorative background gradients */}
+                        <div className="absolute -top-10 -right-10 w-32 h-32 bg-[#70C5BE]/20 rounded-full blur-2xl -z-10"></div>
+                        <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-emerald-100/30 rounded-full blur-2xl -z-10"></div>
+
+                        <div className="text-center mb-6">
+                            <div className="inline-flex p-3 bg-[#70C5BE]/10 rounded-2xl text-[#3a8b85] mb-3">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                            </div>
+                            <h3 className="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight">เลือกบทบาทเข้าใช้งาน</h3>
+                            <p className="text-sm text-gray-500 mt-1 max-w-sm mx-auto">ยินดีต้อนรับกลับสู่ DriveCare! กรุณาเลือกบทบาทที่คุณต้องการใช้งานในขณะนี้</p>
+                        </div>
+
+                        <div className="flex flex-col gap-4">
+                            {/* Card 1: User */}
+                            <button
+                                onClick={() => {
+                                    setShowRoleSelectionModal(false);
+                                    handleLogin("user");
+                                }}
+                                className="w-full flex items-center gap-4 p-4 rounded-2xl border-2 border-transparent bg-linear-to-r from-emerald-50/50 to-teal-50/30 hover:border-[#70C5BE] hover:bg-white text-left transition-all duration-300 shadow-xs hover:shadow-md hover:-translate-y-0.5 group cursor-pointer"
+                            >
+                                <div className="p-3 bg-[#70C5BE] text-white rounded-xl shadow-sm transition-transform duration-300 group-hover:scale-110">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 24 24"><g fill="none" stroke="currentColor" strokeWidth={2.5}><circle cx={12} cy={6} r={4}></circle><path strokeLinecap="round" d="M19.998 18q.002-.246.002-.5c0-2.485-3.582-4.5-8-4.5s-8 2.015-8 4.5S4 22 12 22c2.231 0 3.84-.157 5-.437"></path></g></svg>
+                                </div>
+                                <div className="flex-1">
+                                    <div className="flex items-center justify-between">
+                                        <span className="font-bold text-gray-800 text-base sm:text-lg">ผู้ใช้ทั่วไป (User)</span>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-gray-400 group-hover:text-[#3a8b85] transition-colors"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                                    </div>
+                                    <p className="text-xs sm:text-sm text-gray-500 mt-0.5">จองรถรับส่งทางการแพทย์, ตรวจสอบสถานะการเดินทาง, และข้อมูลสุขภาพ</p>
+                                </div>
+                            </button>
+
+                            {/* Card 2: Driver */}
+                            <button
+                                onClick={() => {
+                                    setShowRoleSelectionModal(false);
+                                    handleLogin("driver");
+                                }}
+                                className="w-full flex items-center gap-4 p-4 rounded-2xl border-2 border-transparent bg-linear-to-r from-slate-50 to-gray-50 hover:border-emerald-600 hover:bg-white text-left transition-all duration-300 shadow-xs hover:shadow-md hover:-translate-y-0.5 group cursor-pointer"
+                            >
+                                <div className="p-3 bg-emerald-600 text-white rounded-xl shadow-sm transition-transform duration-300 group-hover:scale-110">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="3" width="22" height="13" rx="2" ry="2"></rect><line x1="12" y1="16" x2="12" y2="22"></line><line x1="8" y1="22" x2="16" y2="22"></line></svg>
+                                </div>
+                                <div className="flex-1">
+                                    <div className="flex items-center justify-between">
+                                        <span className="font-bold text-gray-800 text-base sm:text-lg">คนขับ / ผู้ดูแล (Driver)</span>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-gray-400 group-hover:text-emerald-700 transition-colors"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                                    </div>
+                                    <p className="text-xs sm:text-sm text-gray-500 mt-0.5">เข้าสู่หน้าแดชบอร์ดคนขับรถ, รับงานจองส่งผู้ป่วย, รายงานสถานะการส่ง</p>
+                                </div>
+                            </button>
+                        </div>
+
+                        <div className="mt-6 flex justify-center border-t border-gray-100 pt-4">
+                            <button
+                                type="button"
+                                onClick={() => setShowRoleSelectionModal(false)}
+                                className="text-sm font-semibold text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
+                            >
+                                ยกเลิกการเลือก
                             </button>
                         </div>
                     </div>

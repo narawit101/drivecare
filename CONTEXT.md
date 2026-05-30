@@ -63,7 +63,8 @@ src/
 │       ├── 📁 auth/                    # Auth Endpoints
 │       │   ├── 📁 users/               # User Login & Register
 │       │   ├── 📁 drivers/             # Driver Register
-│       │   └── 📁 admin/               # Admin Login
+│       │   ├── 📁 admin/               # Admin Login
+│       │   └── 📁 switch-role/         # In-app role switcher (User <-> Driver)
 │       ├── 📁 users/                   # Get current user data
 │       ├── 📁 user-controller/         # Profile edits and image uploads
 │       │   ├── 📁 edit-profile/

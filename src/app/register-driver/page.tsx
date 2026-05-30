@@ -141,22 +141,30 @@ export default function RegisterDriver() {
         if (!isLoad) {
             return
         }
-        if (userData && token) {
-            router.replace("/")
+        if (userData && token && userData.role === "driver") {
+            router.replace("/driver-dashboard")
         }
     }, [isLoad, userData, token]);
 
     useEffect(() => {
         const temp = sessionStorage.getItem("lineProfile");
-        if (userData && token) {
-            router.replace("/");
+        if (userData && token && userData.role === "driver") {
+            router.replace("/driver-dashboard");
+            return;
         }
-        if (!temp) {
+        if (!temp && userData) {
+            const autoLineProfile = {
+                line_id: userData.line_id,
+                name: userData.name,
+                image: userData.profile_img,
+            };
+            sessionStorage.setItem("lineProfile", JSON.stringify(autoLineProfile));
+        } else if (!temp && !userData) {
             toast.error("กรุณาล็อกอินก่อนลงทะเบียน");
             router.push("/login");
             return;
         }
-    }, []);
+    }, [userData, token]);
 
     const handleChange = (e: React.ChangeEvent<AuthFormElement>) => {
         const name = e.target.name as keyof RegisterDriverFormData;
