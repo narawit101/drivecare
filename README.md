@@ -2,6 +2,17 @@
 
 DriveCare is a role-based medical transportation web platform for coordinating patients, drivers, and admin operations in one system. The project covers the full workflow from LINE login and transport booking to driver assignment, trip status tracking, payment verification, and operational reporting.
 
+---
+
+## 📖 Developer Documentation
+
+If you are a developer or using an AI coding assistant, please refer to the following documents:
+- 📄 **[CONTEXT.md](file:///C:/D/drivecare/drivecare/CONTEXT.md)**: Contains the full system context, complete directory structure, Postgres database schema, Pusher events, and status transition flows for Users, Drivers, and Admins.
+- 🤖 **[AGENT.md](file:///C:/D/drivecare/drivecare/AGENT.md)**: Coding rules, constraints, architectural boundaries, and checklists before/after tasks.
+- 📋 **[SYSTEM_SPECIFICATION.md](file:///C:/D/drivecare/drivecare/SYSTEM_SPECIFICATION.md)**: Detailed Mermaid flowcharts and state matrices for the complete booking lifecycle.
+
+---
+
 ## Resume Summary
 
 You can reuse the following points in a resume or portfolio:
