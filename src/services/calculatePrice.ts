@@ -35,7 +35,8 @@ export async function calculatePrice({
   // console.log(start.getTime())
 
   const driff_hours = driff / (1000 * 60 * 60);
-  const calculate_price = Math.ceil(driff_hours * rate_price);
+  const base_price = 150;
+  const calculate_price = base_price + Math.ceil(driff_hours * rate_price);
 
   const output = {
     diff_hours: Number(driff_hours.toFixed(2)),

@@ -18,6 +18,9 @@ export type LongdoMap = {
         distance: () => number;
         interval: () => number;
     };
+    Event: {
+        bind: (event: string, callback: (eventData: any) => void) => void;
+    };
 };
 
 export type LongdoGlobal = {

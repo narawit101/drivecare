@@ -155,8 +155,7 @@ export async function PATCH(request: NextRequest) {
     }
 
     const canPay =
-      (status === "pending_payment" && payment_status === "pending") ||
-      ((status === "paymented" || status === "success") && payment_status === "rejected");
+      payment_status === "pending" || payment_status === "rejected";
 
     if (!canPay) {
       await client.query("ROLLBACK");

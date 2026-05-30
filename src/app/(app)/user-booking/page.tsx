@@ -24,9 +24,40 @@ function BookingPageInner() {
 
     const { initMap, mapRef, renderRoute } = useLongdoMap();
 
-    const handleInitMap = (map: any) => {
-        initMap(map);
+    const handleInitMap = (elementId: string) => {
+        initMap(elementId);
         setIsMapReady(true);
+
+        // ดึง instance แผนที่จริงจาก ref เพื่อผูก Event
+        const mapInstance = mapRef.current;
+        if (mapInstance) {
+            mapInstance.Event.bind('click', async (mouseGeom: any) => {
+                try {
+                    // ดึงที่อยู่จากพิกัด (Reverse Geocoding)
+                    const addressName = await getAddressFromCoords(mouseGeom.lat, mouseGeom.lon);
+                    setPickup({
+                        address: addressName,
+                        lat: mouseGeom.lat,
+                        lon: mouseGeom.lon
+                    });
+
+                    // วาด Marker จุดรับบนแผนที่
+                    mapInstance.Overlays.clear();
+                    if (window.longdo) {
+                        const marker = new window.longdo.Marker(
+                            { lon: mouseGeom.lon, lat: mouseGeom.lat },
+                            { title: "จุดรับผู้ป่วย" }
+                        );
+                        mapInstance.Overlays.add(marker);
+                    }
+                    
+                    toast.success("ปักหมุดจุดรับเรียบร้อย");
+                } catch (err) {
+                    console.error("Map click pin drop error:", err);
+                    toast.error("ไม่สามารถระบุสถานที่จากจุดที่ปักหมุดได้");
+                }
+            });
+        }
     };
 
     // เช็คสิทธิ์การเข้าใช้งาน

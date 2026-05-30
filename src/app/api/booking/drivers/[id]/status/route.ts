@@ -58,7 +58,7 @@ export async function PATCH(
     };
 
     const ALLOWED_NEXT_STATUS: Record<string, string[]> = {
-      accepted: ["in_progress"],
+      accepted: ["in_progress", "going_pickup"],
       in_progress: ["going_pickup"],
       going_pickup: ["picked_up"],
       picked_up: ["heading_to_hospital"],
@@ -128,9 +128,9 @@ export async function PATCH(
     const currentStatus = current.rows[0].status;
     const startTime = current.rows[0].start_time as unknown;
 
-    //  ก่อนเริ่มงาน 1 ชั่วโมง (แต่ยังไม่ถึงเวลาเริ่ม)
-    // ให้กดได้แค่ going_pickup และ picked_up เท่านั้น
-    if (startTime) {
+    //  ตรวจสอบการเริ่มงานล่วงหน้า (Start Time Restriction)
+    // คนขับจะกดเริ่มงาน (in_progress หรือ going_pickup) ได้ไม่เกิน 1 ชั่วโมงก่อนเวลากำหนดการเท่านั้น
+    if (startTime && (new_status === "in_progress" || new_status === "going_pickup")) {
       const nowTH = DateTime.now().setZone(TH_ZONE);
       const startTimeTH = parseDbDateTimeTH(startTime);
       if (!startTimeTH) {
@@ -142,15 +142,10 @@ export async function PATCH(
       }
       const startWindowTH = startTimeTH.minus({ hours: 1 });
 
-      const isBeforeStart = nowTH < startTimeTH;
-      const isWithinOneHourBeforeStart = nowTH >= startWindowTH;
-
-      const allowedBeforeStart = new_status === "going_pickup" || new_status === "picked_up";
-
-      if (isBeforeStart && isWithinOneHourBeforeStart && !allowedBeforeStart) {
+      if (nowTH < startWindowTH) {
         await pool.query("ROLLBACK");
         return NextResponse.json(
-          { message: "ก่อนเริ่มงาน 1 ชั่วโมง สามารถกดเปลี่ยนสถานะได้แค่ 'กำลังเดินทางไปรับผู้ป่วย' และ 'รับผู้ป่วยแล้ว'" },
+          { message: `คุณสามารถเริ่มงานได้ก่อนเวลานัดหมายล่วงหน้าไม่เกิน 1 ชั่วโมงเท่านั้น (เริ่มเปิดให้กดได้ตั้งแต่เวลา ${startWindowTH.toFormat("HH:mm")} น.)` },
           { status: 403 }
         );
       }

@@ -18,6 +18,7 @@ export default function PaymentPage() {
     const [activeTab, setActiveTab] = useState<TabGroup>("pending_payment");
     const [booking, setBooking] = useState<Booking[]>([]);
     const [loading, setLoading] = useState(false);
+    const [uploading, setUploading] = useState(false);
     const { token, isLoad, userData } = useUser();
     const [isModalOpen, setIsModalOpen] = useState(false)
     const router = useRouter();
@@ -77,6 +78,7 @@ export default function PaymentPage() {
         formData.append("payment_slip", file);
 
         try {
+            setUploading(true);
             const response = await fetch("/api/booking/users/payments", {
                 method: "PATCH",
                 headers: {
@@ -88,18 +90,18 @@ export default function PaymentPage() {
             const data = await response.json()
             console.log(data)
 
-            console.log(response)
-
             if (response.ok) {
                 toast.success("อัปโหลดสลิปสำเร็จ");
                 setIsModalOpen(false);
                 fetchAllBooking();
             } else {
-                toast.error("เกิดข้อผิดพลาดในการอัปโหลด");
+                toast.error(data.message || "เกิดข้อผิดพลาดในการอัปโหลด");
             }
         } catch (error) {
             console.error("Upload Error:", error);
             toast.error("ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้");
+        } finally {
+            setUploading(false);
         }
     };
 
@@ -254,6 +256,7 @@ export default function PaymentPage() {
                 onClose={() => setIsModalOpen(false)}
                 bookingId={selectedBooking?.booking_id}
                 totalPrice={selectedBooking?.total_price}
+                isLoading={uploading}
                 onSubmit={(file) => {
                     if (selectedBooking) {
                         handleUploadSlip(file, selectedBooking.booking_id);

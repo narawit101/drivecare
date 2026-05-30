@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import pool from "@/lib/db";
+import { DateTime } from "luxon";
+import { parseDbDateTimeTH, TH_ZONE } from "@/utils/db-datetime";
 
 export async function PATCH(
     req: Request,
@@ -83,7 +85,7 @@ FOR UPDATE
         // 2️⃣ หา “งานที่ถึงคิวจริง”
         const nextJob = await pool.query(
             `
-      SELECT booking_id
+      SELECT booking_id, start_time
       FROM bookings
       WHERE driver_id = $1
         AND status = 'accepted'
@@ -108,6 +110,28 @@ FOR UPDATE
                 { message: "ต้องเริ่มงานตามลำดับเวลา" },
                 { status: 400 }
             );
+        }
+
+        const startTime = nextJob.rows[0].start_time;
+        if (startTime) {
+            const nowTH = DateTime.now().setZone(TH_ZONE);
+            const startTimeTH = parseDbDateTimeTH(startTime);
+            if (!startTimeTH) {
+                await pool.query("ROLLBACK");
+                return NextResponse.json(
+                    { message: "ข้อมูลวัน/เวลาไม่ถูกต้อง" },
+                    { status: 400 }
+                );
+            }
+            const startWindowTH = startTimeTH.minus({ hours: 1 });
+
+            if (nowTH < startWindowTH) {
+                await pool.query("ROLLBACK");
+                return NextResponse.json(
+                    { message: `คุณสามารถเริ่มงานได้ก่อนเวลานัดหมายล่วงหน้าไม่เกิน 1 ชั่วโมงเท่านั้น (เริ่มเปิดให้กดได้ตั้งแต่เวลา ${startWindowTH.toFormat("HH:mm")} น.)` },
+                    { status: 403 }
+                );
+            }
         }
 
 

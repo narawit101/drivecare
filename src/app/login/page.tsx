@@ -138,7 +138,7 @@ export default function Login() {
 
                         <div className="mt-4 p-4">
                             <Button
-                                onClick={handleLogin}
+                                onClick={() => handleLogin()}
                                 buttonIsLoading={loading}
                                 variant="line"
                                 className="w-full bg-[#06C755] text-white hover:bg-[#05B24A] rounded-md "

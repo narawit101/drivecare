@@ -10,4 +10,5 @@ export interface BaseProfile {
     role: UserRole;
     profile_img: string;
     create_at: string;
+    line_id?: string;
 }
