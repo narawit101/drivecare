@@ -38,7 +38,7 @@ export async function uploadImageFile(
   const buffer = Buffer.from(bytes);
 
   const subFolder = options?.folder;
-  const folder = subFolder ? `drivecare/${subFolder}` : "drivecare";
+  const folder = subFolder ? `project/drivecare/${subFolder}` : "project/drivecare";
   const publicIdPrefix = options?.publicIdPrefix;
   const public_id = publicIdPrefix ? `${publicIdPrefix}-${randomId()}` : undefined;
 

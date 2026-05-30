@@ -262,15 +262,15 @@ export default function Login() {
                                     setShowRoleSelectionModal(false);
                                     handleLogin("driver");
                                 }}
-                                className="w-full flex items-center gap-4 p-4 rounded-2xl border-2 border-transparent bg-linear-to-r from-slate-50 to-gray-50 hover:border-emerald-600 hover:bg-white text-left transition-all duration-300 shadow-xs hover:shadow-md hover:-translate-y-0.5 group cursor-pointer"
+                                className="w-full flex items-center gap-4 p-4 rounded-2xl border-2 border-transparent bg-linear-to-r from-emerald-50/50 to-teal-50/30 hover:border-[#70C5BE] hover:bg-white text-left transition-all duration-300 shadow-xs hover:shadow-md hover:-translate-y-0.5 group cursor-pointer"
                             >
-                                <div className="p-3 bg-emerald-600 text-white rounded-xl shadow-sm transition-transform duration-300 group-hover:scale-110">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="3" width="22" height="13" rx="2" ry="2"></rect><line x1="12" y1="16" x2="12" y2="22"></line><line x1="8" y1="22" x2="16" y2="22"></line></svg>
+                                <div className="p-3 bg-[#70C5BE] text-white rounded-xl shadow-sm transition-transform duration-300 group-hover:scale-110">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 36 36" fill="currentColor"><path d="M15 17h3v2h-3z"></path><path d="M26.45 14.17A22.1 22.1 0 0 0 19.38 7a9.64 9.64 0 0 0-9-.7a8.6 8.6 0 0 0-4.82 6.4c-.08.47-.14.92-.2 1.36A4 4 0 0 0 2 18v6.13a2 2 0 0 0 2 2V18a2 2 0 0 1 2-2h18.73A7.28 7.28 0 0 1 32 23.27V24h-2a4.53 4.53 0 1 0 .33 2H32a2 2 0 0 0 2-2v-.73a9.28 9.28 0 0 0-7.55-9.1M11 14H6.93c0-.31.09-.63.15-1A6.52 6.52 0 0 1 11 8Zm2 0V7.58a8.17 8.17 0 0 1 5.36 1.16A19 19 0 0 1 23.9 14Zm12.8 14.38a2.5 2.5 0 1 1 2.5-2.5a2.5 2.5 0 0 1-2.5 2.5"></path><path d="M14.17 24a4.53 4.53 0 1 0 .33 2h5.3v-.25A6 6 0 0 1 20 24ZM10 28.38a2.5 2.5 0 1 1 2.5-2.5a2.5 2.5 0 0 1-2.5 2.5"></path></svg>
                                 </div>
                                 <div className="flex-1">
                                     <div className="flex items-center justify-between">
                                         <span className="font-bold text-gray-800 text-base sm:text-lg">คนขับ / ผู้ดูแล (Driver)</span>
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-gray-400 group-hover:text-emerald-700 transition-colors"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-gray-400 group-hover:text-[#3a8b85] transition-colors"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
                                     </div>
                                     <p className="text-xs sm:text-sm text-gray-500 mt-0.5">เข้าสู่หน้าแดชบอร์ดคนขับรถ, รับงานจองส่งผู้ป่วย, รายงานสถานะการส่ง</p>
                                 </div>

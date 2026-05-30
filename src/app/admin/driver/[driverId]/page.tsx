@@ -54,7 +54,13 @@ export default function DriverDetailPage() {
                 credentials: "include",
                 body: JSON.stringify({ verified, reason }),
             })
-            const data = await res.json()
+            
+            let data: any = {}
+            try {
+                data = await res.json()
+            } catch (jsonErr) {
+                console.error("Error parsing verify JSON response:", jsonErr)
+            }
 
             if (res.ok) {
                 toast.success(data.message || "อัพเดทสถานะเรียบร้อย")
@@ -67,6 +73,7 @@ export default function DriverDetailPage() {
             }
         } catch (error) {
             console.error("Failed to update driver status:", error)
+            toast.error("เกิดข้อผิดพลาดในการอัปเดตสถานะ")
         } finally {
             setProcessLoading(false)
         }
